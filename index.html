@@ -5,7 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="format-detection" content="telephone=no">
 <title>燃气监管工作台</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+// ========== UPDATE CHECK ==========
+const APP_VERSION = "v2.0";
+const UPDATE_URL = "https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html";
+
+function checkUpdate() {
+  showToast("⏳ 正在检查更新...");
+  fetch(UPDATE_URL)
+    .then(r => r.text())
+    .then(html => {
+      const match = html.match(/APP_VERSION = "([^"]+)"/);
+      if (match) {
+        const latest = match[1];
+        if (latest !== APP_VERSION) {
+          showModal("发现新版本", `当前版本：${APP_VERSION}\n最新版本：${latest}\n\n是否前往GitHub下载最新版？`, () => {
+            window.open("https://github.com/hlbfox/gas-inspection-platform", "_blank");
+            closeModal();
+          });
+        } else {
+          showToast("✅ 已是最新版本 " + APP_VERSION);
+        }
+      } else {
+        showToast("❌ 无法获取版本信息");
+      }
+    })
+    .catch(() => showToast("❌ 检查更新失败，请检查网络"));
+}
+
+</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--primary:#1a73e8;--primary-dark:#1557b0;--primary-light:#e8f0fe;--success:#34a853;--success-bg:#e6f4ea;--danger:#e53935;--danger-bg:#fce8e6;--warn:#f9a825;--warn-bg:#fff8e1;--gray:#9e9e9e;--gray-bg:#f5f5f5;--bg:#f0f4f9;--card-bg:#fff;--text:#333;--text-secondary:#666;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.06)}
@@ -170,7 +198,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="header">
   <div class="header-top">
     <h1 id="instName" onclick="editInstName()">🏢 燃气监管工作台</h1>
-    <span class="header-badge" id="versionBadge">v2.0</span>
+    <span class="header-badge" id="versionBadge" title="点击检查更新" onclick="checkUpdate()" style="cursor:pointer">v2.0</span>
   </div>
   <div class="sub" id="instSub">燃气检查记录 · 隐患跟踪 · 数据统计</div>
 </div>
@@ -893,6 +921,34 @@ function showToast(msg){
 
 // ========== INIT ON LOAD ==========
 document.addEventListener('DOMContentLoaded',init);
+
+// ========== UPDATE CHECK ==========
+const APP_VERSION = "v2.0";
+const UPDATE_URL = "https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html";
+
+function checkUpdate() {
+  showToast("⏳ 正在检查更新...");
+  fetch(UPDATE_URL)
+    .then(r => r.text())
+    .then(html => {
+      const match = html.match(/APP_VERSION = "([^"]+)"/);
+      if (match) {
+        const latest = match[1];
+        if (latest !== APP_VERSION) {
+          showModal("发现新版本", `当前版本：${APP_VERSION}\n最新版本：${latest}\n\n是否前往GitHub下载最新版？`, () => {
+            window.open("https://github.com/hlbfox/gas-inspection-platform", "_blank");
+            closeModal();
+          });
+        } else {
+          showToast("✅ 已是最新版本 " + APP_VERSION);
+        }
+      } else {
+        showToast("❌ 无法获取版本信息");
+      }
+    })
+    .catch(() => showToast("❌ 检查更新失败，请检查网络"));
+}
+
 </script>
 </body>
 </html>
