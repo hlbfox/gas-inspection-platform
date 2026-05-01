@@ -5,34 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="format-detection" content="telephone=no">
 <title>燃气监管工作台</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+window.CHART_LOADED = false;
+var _cl = document.createElement("script");
+_cl.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js";
+_cl.onload = function(){ window.CHART_LOADED = true; };
+_cl.onerror = function(){ console.warn("Chart.js加载失败，统计图表将使用文字替代"); };
+if(!document.querySelector("script[src*='chart.js']")) document.head.appendChild(_cl);
+
 // ========== UPDATE CHECK ==========
 const APP_VERSION = "v2.0";
 const UPDATE_URL = "https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html";
-
 function checkUpdate() {
   showToast("⏳ 正在检查更新...");
-  fetch(UPDATE_URL)
-    .then(r => r.text())
-    .then(html => {
-      const match = html.match(/APP_VERSION = "([^"]+)"/);
-      if (match) {
-        const latest = match[1];
-        if (latest !== APP_VERSION) {
-          showModal("发现新版本", `当前版本：${APP_VERSION}\n最新版本：${latest}\n\n是否前往GitHub下载最新版？`, () => {
-            window.open("https://github.com/hlbfox/gas-inspection-platform", "_blank");
-            closeModal();
-          });
-        } else {
-          showToast("✅ 已是最新版本 " + APP_VERSION);
-        }
-      } else {
-        showToast("❌ 无法获取版本信息");
-      }
-    })
-    .catch(() => showToast("❌ 检查更新失败，请检查网络"));
-}
+  fetch(UPDATE_URL).then(function(r){return r.text()}).then(function(html){
+    var m = html.match(/APP_VERSION = "([^"]+)"/);
+    if(m && m[1] !== APP_VERSION){
+      showModal("发现新版本", "当前版本："+APP_VERSION+"
+最新版本："+m[1]+"
 
+是否前往GitHub下载最新版？", function(){window.open("https://github.com/hlbfox/gas-inspection-platform","_blank");closeModal()});
+    } else {
+      showToast("✅ 已是最新版本 " + APP_VERSION);
+    }
+  }).catch(function(){showToast("❌ 检查更新失败")});
+}
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
