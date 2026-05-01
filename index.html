@@ -617,24 +617,31 @@ function getCheckItems(){
 }
 
 // ========== SUBMIT ==========
+var SUBMIT_LOCK = false;
 function submitForm(){
-  const location=document.getElementById('checkLocation').value.trim();
-  const deviceType=document.getElementById('deviceType').value;
-  const inspector=document.getElementById('checkInspector').value.trim();
-  const date=document.getElementById('checkDate').value;
-  const overallNote=document.getElementById('overallNote').value.trim();
-  if(!location){showToast('请输入地点/用户');return}
-  if(!deviceType){showToast('请选择用户类型');return}
-  if(!inspector){showToast('请输入检查人姓名');return}
-  const items=getCheckItems();
-  const reportText=buildReport(date,location,deviceType,items,overallNote,inspector);
-  document.getElementById('reportContent').textContent=reportText;
-  const record={id:Date.now(),date,location,deviceType,items,overallNote,inspector,reportText,createdAt:new Date().toISOString()};
-  saveRecord(record);
-  addDefectsFromRecord(record);
-  renderHistory();renderStats();
-  showToast('✅ 报告已保存');
-  switchPage('report');
+  if(SUBMIT_LOCK){showToast('⏳ 正在提交，请稍候...');return}
+  SUBMIT_LOCK=true;
+  try{
+    const location=document.getElementById('checkLocation').value.trim();
+    const deviceType=document.getElementById('deviceType').value;
+    const inspector=document.getElementById('checkInspector').value.trim();
+    const date=document.getElementById('checkDate').value;
+    const overallNote=document.getElementById('overallNote').value.trim();
+    if(!location){showToast('请输入地点/用户');SUBMIT_LOCK=false;return}
+    if(!deviceType){showToast('请选择用户类型');SUBMIT_LOCK=false;return}
+    if(!inspector){showToast('请输入检查人姓名');SUBMIT_LOCK=false;return}
+    const items=getCheckItems();
+    const reportText=buildReport(date,location,deviceType,items,overallNote,inspector);
+    document.getElementById('reportContent').textContent=reportText;
+    const record={id:Date.now(),date,location,deviceType,items,overallNote,inspector,reportText,createdAt:new Date().toISOString()};
+    saveRecord(record);
+    addDefectsFromRecord(record);
+    renderHistory();
+    try{renderStats()}catch(e){}
+    showToast('✅ 报告已保存');
+    switchPage('report');
+  }catch(e){showToast('❌ 提交出错，请刷新重试')}
+  SUBMIT_LOCK=false;
 }
 
 function buildReport(date,location,deviceType,items,overallNote,inspector){
@@ -807,17 +814,16 @@ function renderChartDefects(records){
   }catch(e){}
 }
 function renderChartUserTypes(records){
-  const typeCount={};
-  records.forEach(r=>{typeCount[r.deviceType]=(typeCount[r.deviceType]||0)+1});
-  const entries=Object.entries(typeCount);
-  if(chartUserTypes){chartUserTypes.destroy()}
-  const colors=['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'];
-  const ctx=document.getElementById('chartUserTypes').getContext('2d');
-  chartUserTypes=new Chart(ctx,{
-    type:'doughnut',
-    data:{labels:entries.map(e=>e[0]),datasets:[{data:entries.map(e=>e[1]),backgroundColor:colors.slice(0,entries.length),borderWidth:2,borderColor:'#fff'}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}
-  });
+  try{
+    if(typeof Chart==='undefined')return;
+    const tc={};records.forEach(function(r){tc[r.deviceType]=(tc[r.deviceType]||0)+1});
+    const e=Object.entries(tc);
+    if(chartUserTypes){try{chartUserTypes.destroy()}catch(e){}}
+    const colors=['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'];
+    chartUserTypes=new Chart(document.getElementById('chartUserTypes').getContext('2d'),{type:'doughnut',
+      data:{labels:e.map(function(x){return x[0]}),datasets:[{data:e.map(function(x){return x[1]}),backgroundColor:colors.slice(0,e.length),borderWidth:2,borderColor:'#fff'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}});
+  }catch(e){}
 }
 
 // ========== DEFECTS ==========
