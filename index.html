@@ -2,205 +2,130 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="format-detection" content="telephone=no">
 <title>燃气监管工作台</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-window.CHART_LOADED = false;
-var _cl = document.createElement("script");
-_cl.src = "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js";
-_cl.onload = function(){ window.CHART_LOADED = true; };
-_cl.onerror = function(){ console.warn("Chart.js加载失败，统计图表将使用文字替代"); };
-if(!document.querySelector("script[src*='chart.js']")) document.head.appendChild(_cl);
-
-// ========== UPDATE CHECK ==========
-const APP_VERSION = "v2.0";
-const UPDATE_URL = "https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html";
-function checkUpdate() {
-  showToast("⏳ 正在检查更新...");
-  fetch(UPDATE_URL).then(function(r){return r.text()}).then(function(html){
-    var m = html.match(/APP_VERSION = "([^"]+)"/);
-    if(m && m[1] !== APP_VERSION){
-      showModal("发现新版本", "当前版本："+APP_VERSION+"
-最新版本："+m[1]+"
-
-是否前往GitHub下载最新版？", function(){window.open("https://github.com/hlbfox/gas-inspection-platform","_blank");closeModal()});
-    } else {
-      showToast("✅ 已是最新版本 " + APP_VERSION);
-    }
-  }).catch(function(){showToast("❌ 检查更新失败")});
-}
+// 异步加载Chart.js，加载失败不影响其他功能
+window.CLAW_CHART_OK=false;
+(function(){var d=document,s=d.createElement('script');
+s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
+s.onload=function(){CLAW_CHART_OK=true};
+s.onerror=function(){};
+d.head.appendChild(s)})();
 </script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--primary:#1a73e8;--primary-dark:#1557b0;--primary-light:#e8f0fe;--success:#34a853;--success-bg:#e6f4ea;--danger:#e53935;--danger-bg:#fce8e6;--warn:#f9a825;--warn-bg:#fff8e1;--gray:#9e9e9e;--gray-bg:#f5f5f5;--bg:#f0f4f9;--card-bg:#fff;--text:#333;--text-secondary:#666;--radius:12px;--shadow:0 1px 4px rgba(0,0,0,.06)}
-body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);font-size:16px;padding-bottom:70px;min-height:100vh}
-.page{display:none;padding:16px;max-width:520px;margin:0 auto;animation:fadeIn .25s ease}
-.page.active{display:block}
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* Header */
-.header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(26,115,232,.25)}
+:root{--blue:#1a73e8;--blue-d:#1557b0;--blue-l:#e8f0fe;--green:#34a853;--green-b:#e6f4ea;--red:#e53935;--red-b:#fce8e6;--gray:#9e9e9e;--gray-b:#f5f5f5;--bg:#f0f4f9;--card:#fff;--txt:#333;--radius:12px}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--txt);font-size:16px;padding-bottom:70px;min-height:100vh}
+.page{display:none;padding:16px;max-width:520px;margin:0 auto;animation:fade .2s}.page.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.header{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;padding:14px 16px;position:sticky;top:0;z-index:100}
 .header-top{display:flex;justify-content:space-between;align-items:center}
-.header h1{font-size:19px;font-weight:600;letter-spacing:1px;cursor:pointer;padding:2px 6px;border-radius:6px;transition:background .15s}
-.header h1:hover{background:rgba(255,255,255,.15)}
+.header h1{font-size:19px;font-weight:600;cursor:pointer;padding:2px 6px;border-radius:6px}
 .header .sub{font-size:12px;text-align:center;opacity:.8;margin-top:2px}
-.header-badge{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:500}
-
-/* Card */
-.card{background:var(--card-bg);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
-.card-title{font-size:15px;font-weight:600;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.card-sub{font-size:13px;color:var(--text-secondary);margin:-8px 0 12px}
-
-/* Form */
-.form-group{margin-bottom:14px}
-.form-group:last-child{margin-bottom:0}
+.badge{background:rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:11px;cursor:pointer}
+.card{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.ctitle{font-size:15px;font-weight:600;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.fg{margin-bottom:14px}.fg:last-child{margin-bottom:0}
 label{display:block;font-size:14px;color:#555;font-weight:500;margin-bottom:5px}
-input[type="text"],input[type="date"],input[type="number"],select,textarea{width:100%;padding:12px 14px;border:1.5px solid #dde1e6;border-radius:8px;font-size:16px;color:var(--text);background:#fff;transition:border-color .2s;appearance:none;-webkit-appearance:none;outline:none}
-input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
+input,select,textarea{width:100%;padding:12px 14px;border:1.5px solid #dde1e6;border-radius:8px;font-size:16px;color:var(--txt);background:#fff;outline:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(26,115,232,.12)}
 textarea{resize:vertical;min-height:70px;font-family:inherit}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='2' fill='none'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
-.readonly-field{background:#f5f7fa;padding:12px 14px;border-radius:8px;font-size:14px;color:#666;border:1px solid #eee;min-height:20px;word-break:break-all}
-
-/* Check Item */
-.check-item{background:#f7f9fc;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #e8ecf1}
-.check-item:last-child{margin-bottom:0}
-.check-item .item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.check-item .item-name{font-size:15px;font-weight:500;color:var(--text)}
-.check-item .item-del{background:none;border:none;font-size:18px;color:var(--danger);cursor:pointer;padding:2px 6px;border-radius:4px;opacity:.5}
-.check-item .item-del:hover{opacity:1}
-.check-result{display:flex;gap:6px;margin-bottom:6px}
-.check-result label{display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;padding:8px 10px;border-radius:8px;border:2px solid #ddd;background:#fafafa;transition:all .2s;font-weight:400;margin:0;flex:1;justify-content:center;user-select:none;box-shadow:0 1px 2px rgba(0,0,0,.04)}
-.check-result label:active{transform:scale(.96)}
-.check-result input{display:none}
-/* 未选中时用浅灰色圆圈 */
-.check-result label span{display:flex;align-items:center;gap:4px}
-.check-result label span::before{content:"";display:inline-block;width:16px;height:16px;border-radius:50%;border:2px solid #ccc;background:#fff;transition:all .2s;flex-shrink:0}
-/* 选中后 */
-.check-result label.pass input:checked+span::before{content:"";border-color:#2e7d32;background:var(--success);box-shadow:inset 0 0 0 3px #fff}
-.check-result label.fail input:checked+span::before{content:"";border-color:#c62828;background:var(--danger);box-shadow:inset 0 0 0 3px #fff}
-.check-result label.na input:checked+span::before{content:"";border-color:#616161;background:var(--gray);box-shadow:inset 0 0 0 3px #fff}
-.check-result label.pass input:checked+span{color:#1b5e20;font-weight:700}
-.check-result label.fail input:checked+span{color:#b71c1c;font-weight:700}
-.check-result label.na input:checked+span{color:#424242;font-weight:700}
-/* 选中状态 - 标签整体 */
-.check-result label:has(input:checked){border-width:2px;transform:scale(1.02)}
-.check-result label.pass:has(input:checked){border-color:#2e7d32;background:#e8f5e9;box-shadow:0 0 0 3px rgba(46,125,50,.15)}
-.check-result label.fail:has(input:checked){border-color:#c62828;background:#ffebee;box-shadow:0 0 0 3px rgba(198,40,40,.15)}
-.check-result label.na:has(input:checked){border-color:#616161;background:#f5f5f5;box-shadow:0 0 0 3px rgba(97,97,97,.12)}
-.check-item .item-note{width:100%;padding:8px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;outline:none;background:#fff;margin-top:6px}
-.check-item .item-note:focus{border-color:var(--primary)}
-
-/* Buttons */
-.btn-outline{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1.5px dashed var(--primary);border-radius:8px;background:transparent;color:var(--primary);font-size:14px;cursor:pointer;transition:all .2s}
-.btn-outline:active{background:rgba(26,115,232,.08)}
-.btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;transition:all .15s;text-align:center;letter-spacing:1px}
+.ci{background:#f7f9fc;border-radius:8px;padding:12px;margin-bottom:10px;border:1px solid #e8ecf1}
+.ci:last-child{margin-bottom:0}
+.ci-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ci-n{font-size:15px;font-weight:500}.ci-d{background:none;border:none;font-size:18px;color:var(--red);cursor:pointer;padding:2px 6px;opacity:.5}
+.cr{display:flex;gap:5px}
+.cr label{display:flex;align-items:center;justify-content:center;gap:4px;flex:1;padding:8px 6px;border-radius:8px;border:2px solid #ddd;background:#fafafa;cursor:pointer;font-size:13px;font-weight:400;transition:all .15s;user-select:none;margin:0;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+.cr input{display:none}
+.cr label span{display:flex;align-items:center;gap:4px}
+.cr label span:before{content:'';display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #ccc;background:#fff;flex-shrink:0;transition:all .15s}
+.cr .p input:checked+span:before{border-color:#2e7d32;background:#34a853;box-shadow:inset 0 0 0 3px #fff}
+.cr .f input:checked+span:before{border-color:#c62828;background:#e53935;box-shadow:inset 0 0 0 3px #fff}
+.cr .n input:checked+span:before{border-color:#616161;background:#9e9e9e;box-shadow:inset 0 0 0 3px #fff}
+.cr .p input:checked+span{color:#1b5e20;font-weight:700}
+.cr .f input:checked+span{color:#b71c1c;font-weight:700}
+.cr .n input:checked+span{color:#424242;font-weight:700}
+.cr .p:has(input:checked){border-color:#2e7d32;background:#e8f5e9;box-shadow:0 0 0 3px rgba(46,125,50,.15);transform:scale(1.02)}
+.cr .f:has(input:checked){border-color:#c62828;background:#ffebee;box-shadow:0 0 0 3px rgba(198,40,40,.15);transform:scale(1.02)}
+.cr .n:has(input:checked){border-color:#616161;background:#f5f5f5;box-shadow:0 0 0 3px rgba(97,97,97,.12);transform:scale(1.02)}
+.ci .nt{width:100%;padding:8px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:14px;outline:none;margin-top:6px}
+.bo{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1.5px dashed var(--blue);border-radius:8px;background:transparent;color:var(--blue);font-size:14px;cursor:pointer}
+.btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:1px;transition:all .1s}
 .btn:active{transform:scale(.97)}
-.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff}
-.btn-primary:active{opacity:.9}
-.btn-secondary{background:var(--primary-light);color:var(--primary)}
-.btn-secondary:active{background:#d2e3fc}
-.btn-danger{background:var(--danger-bg);color:var(--danger)}
-.btn-group{display:flex;gap:10px}
-.btn-group .btn{flex:1}
-.btn-sm{padding:10px 14px;font-size:14px;width:auto;letter-spacing:0}
-
-/* Bottom Nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;box-shadow:0 -1px 6px rgba(0,0,0,.08);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 0 9px;cursor:pointer;color:#999;transition:color .15s;border:none;background:none;font-size:11px;gap:1px}
-.nav-item.active{color:var(--primary)}
-.nav-item .nav-icon{font-size:20px;line-height:1}
-.nav-item .nav-badge{background:var(--danger);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;position:absolute;top:1px;right:50%;transform:translateX(8px)}
-.nav-item-wrap{position:relative;display:flex;flex-direction:column;align-items:center}
-
-/* Toast */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);background:rgba(0,0,0,.78);color:#fff;padding:16px 28px;border-radius:10px;font-size:15px;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center;backdrop-filter:blur(4px);max-width:260px}
+.btn-p{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff}
+.btn-s{background:var(--blue-l);color:var(--blue)}
+.btn-d{background:var(--red-b);color:var(--red)}
+.bg{display:flex;gap:10px}.bg .btn{flex:1}
+.bs{padding:10px 14px;font-size:14px;width:auto;letter-spacing:0}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;box-shadow:0 -1px 6px rgba(0,0,0,.08);z-index:200;padding-bottom:env(safe-area-inset-bottom)}
+.nitem{flex:1;display:flex;flex-direction:column;align-items:center;padding:7px 0 9px;cursor:pointer;color:#999;border:none;background:none;font-size:11px;gap:1px}
+.nitem.active{color:var(--blue)}
+.ni{font-size:20px;line-height:1}
+.nbadge{background:var(--red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;position:absolute;top:1px;right:50%;transform:translateX(8px)}
+.nwrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);background:rgba(0,0,0,.78);color:#fff;padding:16px 28px;border-radius:10px;font-size:15px;z-index:999;opacity:0;pointer-events:none;transition:all .25s;text-align:center;max-width:260px}
 .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
-
-/* Report */
-.report-content{background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-all;margin-bottom:12px;max-height:420px;overflow-y:auto}
-.report-content::-webkit-scrollbar{width:4px}
-.report-content::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
-.report-header{text-align:center;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--primary)}
-.report-header h2{font-size:18px;color:var(--primary);margin-bottom:4px}
-.report-header .report-meta{font-size:12px;color:#888}
-
-/* History */
-.search-bar{display:flex;gap:8px;margin-bottom:12px}
-.search-bar input{flex:1;padding:10px 12px;border:1.5px solid #dde1e6;border-radius:8px;font-size:14px;outline:none}
-.search-bar input:focus{border-color:var(--primary)}
-.filter-tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.filter-tab{padding:6px 14px;border-radius:16px;font-size:13px;border:1.5px solid #dde1e6;background:#fff;cursor:pointer;white-space:nowrap;flex:none;color:#666;transition:all .15s}
-.filter-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-
-.record-item{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;transition:all .15s;position:relative}
-.record-item:active{background:#f0f4f9}
-.record-item .ri-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
-.record-item .ri-date{font-size:13px;color:#888}
-.record-item .ri-type{font-size:12px;background:var(--primary-light);color:var(--primary);padding:2px 8px;border-radius:4px}
-.record-item .ri-loc{font-size:15px;font-weight:500;color:var(--text);margin-bottom:2px;padding-right:30px}
-.record-item .ri-inspector{font-size:12px;color:#aaa}
-.record-detail{margin-top:8px;padding-top:10px;border-top:1px solid #eee}
-.record-detail .rd-row{display:flex;gap:8px;font-size:13px;margin-bottom:4px}
-.record-detail .rd-label{color:#888;min-width:60px;flex-shrink:0}
-.record-detail .rd-value{color:var(--text);flex:1}
-.record-detail .rd-items{margin-top:6px}
-.record-detail .rd-item{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0}
-.rd-status{display:inline-block;padding:1px 8px;border-radius:3px;font-size:12px;font-weight:500}
-.rd-status.pass{background:var(--success-bg);color:#2e7d32}
-.rd-status.fail{background:var(--danger-bg);color:#c62828}
-.rd-status.na{background:var(--gray-bg);color:#616161}
-
-.empty-state{text-align:center;padding:50px 20px;color:#bbb}
-.empty-state .empty-icon{font-size:48px;margin-bottom:10px}
-.empty-state .empty-text{font-size:15px;color:#999}
-
-/* Stats */
-.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.stat-card{background:linear-gradient(135deg,#f8faff,#eef3fb);border-radius:10px;padding:14px;text-align:center}
-.stat-card .stat-num{font-size:28px;font-weight:700;color:var(--primary)}
-.stat-card .stat-label{font-size:12px;color:#888;margin-top:2px}
-.stat-card.green .stat-num{color:var(--success)}
-.stat-card.orange .stat-num{color:var(--warn)}
-.stat-card.red .stat-num{color:var(--danger)}
-.chart-container{width:100%;height:200px;margin:10px 0}
-.chart-container-sm{width:100%;height:160px;margin:8px 0}
-
-/* Defect */
-.defect-card{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:3px solid var(--danger)}
-.defect-card.fixed{border-left-color:var(--success);opacity:.8}
-.defect-card.reviewing{border-left-color:var(--warn)}
-.defect-card .dc-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
-.defect-card .dc-title{font-size:14px;font-weight:500;color:var(--text);flex:1}
-.defect-card .dc-status{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
-.dc-status.pending{background:var(--danger-bg);color:var(--danger)}
-.dc-status.fixed{background:var(--success-bg);color:#2e7d32}
-.dc-status.reviewing{background:var(--warn-bg);color:#e65100}
-.defect-card .dc-meta{font-size:12px;color:#999;margin-bottom:4px}
-.defect-card .dc-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.defect-card .dc-actions .btn-sm{font-size:12px;padding:6px 12px}
-
-/* Modal */
-.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.show{display:flex}
-.modal-content{background:#fff;border-radius:14px;padding:20px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto}
-.modal-title{font-size:17px;font-weight:600;margin-bottom:8px;color:var(--text)}
-.modal-body{font-size:14px;color:#555;line-height:1.6;margin-bottom:16px}
-.modal-actions{display:flex;gap:10px}
-.modal-actions .btn{font-size:15px;padding:12px}
-
-/* Settings */
-.setting-row{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
-.setting-row:last-child{border-bottom:none}
-.setting-label{font-size:14px;color:var(--text)}
-.setting-desc{font-size:12px;color:#999;margin-top:2px}
-
-/* Print */
-@media print{body{background:#fff;padding:0}.bottom-nav,.header,.btn,.btn-group,.toast{display:none!important}.page{display:block!important;padding:20px;max-width:none;animation:none}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.report-content{max-height:none;overflow:visible;border:none;padding:0}}
-
-/* Responsive */
-@media(max-width:360px){.check-result label{font-size:12px;padding:5px 6px;gap:2px}.stats-grid{grid-template-columns:1fr 1fr;gap:8px}.stat-card .stat-num{font-size:24px}}
+.rc{background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-all;margin-bottom:12px;max-height:420px;overflow-y:auto}
+.rh{text-align:center;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid var(--blue)}
+.rh h2{font-size:18px;color:var(--blue);margin-bottom:4px}
+.rh .rm{font-size:12px;color:#888}
+.sb{display:flex;gap:8px;margin-bottom:12px}
+.sb input{flex:1;padding:10px 12px;border:1.5px solid #dde1e6;border-radius:8px;font-size:14px;outline:none}
+.sb input:focus{border-color:var(--blue)}
+.ft{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.ft span{padding:6px 14px;border-radius:16px;font-size:13px;border:1.5px solid #dde1e6;background:#fff;cursor:pointer;white-space:nowrap;flex:none;color:#666}
+.ft .active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.ri{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer;position:relative}
+.ri-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.ri-d{font-size:13px;color:#888}
+.ri-t{font-size:12px;background:var(--blue-l);color:var(--blue);padding:2px 8px;border-radius:4px}
+.ri-l{font-size:15px;font-weight:500;padding-right:30px;margin-bottom:2px}
+.ri-i{font-size:12px;color:#aaa}
+.rd{margin-top:8px;padding-top:10px;border-top:1px solid #eee;display:none}
+.rdr{display:flex;gap:8px;font-size:13px;margin-bottom:4px}
+.rdl{color:#888;min-width:60px;flex-shrink:0}
+.rdv{color:var(--txt);flex:1}
+.rdi{margin-top:6px}
+.rdi .rdi2{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0}
+.rds{display:inline-block;padding:1px 8px;border-radius:3px;font-size:12px;font-weight:500}
+.rds.p{background:var(--green-b);color:#2e7d32}
+.rds.f{background:var(--red-b);color:#c62828}
+.rds.n{background:var(--gray-b);color:#616161}
+.es{text-align:center;padding:50px 20px;color:#bbb}
+.es .ei{font-size:48px;margin-bottom:10px}
+.es .et{font-size:15px;color:#999}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.sc{background:linear-gradient(135deg,#f8faff,#eef3fb);border-radius:10px;padding:14px;text-align:center}
+.sc .sn{font-size:28px;font-weight:700;color:var(--blue)}
+.sc .sl{font-size:12px;color:#888;margin-top:2px}
+.sc.g .sn{color:var(--green)}.sc.o .sn{color:#f9a825}.sc.r .sn{color:var(--red)}
+.cc{width:100%;height:200px;margin:10px 0}
+.ccs{width:100%;height:160px;margin:8px 0}
+.dc{background:#fff;border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);border-left:3px solid var(--red)}
+.dc.fx{border-left-color:var(--green);opacity:.8}
+.dc.rv{border-left-color:#f9a825}
+.dc-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px}
+.dc-t{font-size:14px;font-weight:500;flex:1}
+.dc-st{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.dc-st.pd{background:var(--red-b);color:var(--red)}
+.dc-st.fd{background:var(--green-b);color:#2e7d32}
+.dc-st.rv{background:#fff8e1;color:#e65100}
+.dc-m{font-size:12px;color:#999;margin-bottom:4px}
+.dc-a{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.dc-a .bs{font-size:12px;padding:6px 12px}
+.mo{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:300;display:none;align-items:center;justify-content:center;padding:20px}
+.mo.show{display:flex}
+.mc{background:#fff;border-radius:14px;padding:20px;max-width:360px;width:100%;max-height:80vh;overflow-y:auto}
+.mt{font-size:17px;font-weight:600;margin-bottom:8px}
+.mb{font-size:14px;color:#555;line-height:1.6;margin-bottom:16px}
+.ma{display:flex;gap:10px}.ma .btn{font-size:15px;padding:12px}
+.sr{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f0f0f0}
+.sr:last-child{border-bottom:none}
+.sl2{font-size:14px}.sd{font-size:12px;color:#999;margin-top:2px}
+@media print{body{background:#fff;padding:0}.bnav,.header,.btn,.bg,.toast{display:none!important}.page{display:block!important;padding:20px;max-width:none}.card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.rc{max-height:none;overflow:visible;border:none;padding:0}}
 </style>
 </head>
 <body>
@@ -208,809 +133,425 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="header">
   <div class="header-top">
     <h1 id="instName" onclick="editInstName()">🏢 燃气监管工作台</h1>
-    <span class="header-badge" id="versionBadge" title="点击检查更新" onclick="checkUpdate()" style="cursor:pointer">v2.0</span>
+    <span class="badge" id="verBadge" onclick="checkUpdate()">v2.1</span>
   </div>
   <div class="sub" id="instSub">燃气检查记录 · 隐患跟踪 · 数据统计</div>
 </div>
 
-<!-- ========== PAGE: FORM ========== -->
-<div id="pageForm" class="page active">
+<!-- PAGE: FORM -->
+<div id="pgForm" class="page active">
   <div class="card">
-    <div class="form-group">
-      <label>📅 检查日期</label>
-      <input type="date" id="checkDate">
-    </div>
-    <div class="form-group">
-      <label>📍 地点/用户</label>
-      <input type="text" id="checkLocation" placeholder="如：幸福小区3单元202">
-    </div>
-    <div class="form-group">
-      <label>👤 用户类型</label>
-      <select id="deviceType">
-        <option value="">请选择用户类型</option>
-        <option>居民用户</option><option>商业用户</option><option>工业用户</option>
-        <option>公福用户</option><option>学校/医院</option><option>餐饮商户</option>
-        <option>机关单位</option><option>其他</option>
-      </select>
-    </div>
+    <div class="fg"><label>📅 检查日期</label><input type="date" id="fd"></div>
+    <div class="fg"><label>📍 地点/用户</label><input type="text" id="fl" placeholder="如：幸福小区3单元202"></div>
+    <div class="fg"><label>👤 用户类型</label>
+      <select id="ftype"><option value="">请选择</option><option>居民用户</option><option>商业用户</option><option>工业用户</option><option>公福用户</option><option>学校/医院</option><option>餐饮商户</option><option>机关单位</option><option>其他</option></select></div>
   </div>
-
   <div class="card">
-    <div class="card-title">🔍 检查项目</div>
-    <div id="checkItemsList"></div>
-    <button class="btn-outline" onclick="addCustomItem()" style="margin-top:10px">＋ 添加自定义检查项</button>
+    <div class="ctitle">🔍 检查项目</div>
+    <div id="ciList"></div>
+    <button class="bo" onclick="addItem()" style="margin-top:10px">＋ 添加自定义检查项</button>
   </div>
-
   <div class="card">
-    <div class="form-group">
-      <label>✍️ 检查人</label>
-      <input type="text" id="checkInspector" placeholder="请输检查人姓名">
-    </div>
-    <div class="form-group">
-      <label>📝 总体备注</label>
-      <textarea id="overallNote" placeholder="如有其他需要说明的情况…" rows="3"></textarea>
-    </div>
+    <div class="fg"><label>✍️ 检查人</label><input type="text" id="fi" placeholder="请输入检查人姓名"></div>
+    <div class="fg"><label>📝 总体备注</label><textarea id="fnote" placeholder="如有其他需要说明的情况…" rows="3"></textarea></div>
   </div>
-
-  <button class="btn btn-primary" onclick="submitForm()">📄 生成报告并保存</button>
+  <button class="btn btn-p" onclick="submitForm()">📄 生成报告并保存</button>
 </div>
 
-<!-- ========== PAGE: REPORT ========== -->
-<div id="pageReport" class="page">
+<!-- PAGE: REPORT -->
+<div id="pgReport" class="page">
   <div class="card">
-    <div class="report-header">
-      <h2 id="reportInstHeading">📄 燃气安全检查报告</h2>
-      <div class="report-meta" id="reportMeta">自动生成 · 电子存档</div>
+    <div class="rh"><h2 id="rptHead">📄 燃气安全检查报告</h2><div class="rm">自动生成 · 电子存档</div></div>
+    <div class="rc" id="rptContent"></div>
+    <div class="bg" style="margin-bottom:8px">
+      <button class="btn btn-s bs" onclick="copyRpt()">📋 复制</button>
+      <button class="btn btn-p bs" onclick="window.print()">🖨️ 打印</button>
     </div>
-    <div class="report-content" id="reportContent"></div>
-    <div class="btn-group" style="margin-bottom:8px">
-      <button class="btn btn-secondary btn-sm" onclick="copyReport()">📋 复制</button>
-      <button class="btn btn-primary btn-sm" onclick="printReport()">🖨️ 打印报告</button>
-    </div>
-    <button class="btn btn-secondary" onclick="goBackForm()">⬅ 继续填写</button>
+    <button class="btn btn-s" onclick="goBack()">⬅ 继续填写</button>
   </div>
 </div>
 
-<!-- ========== PAGE: STATS ========== -->
-<div id="pageStats" class="page">
-  <div class="stats-grid" id="statsGrid">
-    <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">总检查次数</div></div>
-    <div class="stat-card green"><div class="stat-num" id="statMonth">0</div><div class="stat-label">本月检查</div></div>
-    <div class="stat-card orange"><div class="stat-num" id="statPassRate">0%</div><div class="stat-label">综合合格率</div></div>
-    <div class="stat-card red"><div class="stat-num" id="statDefects">0</div><div class="stat-label">待整改隐患</div></div>
+<!-- PAGE: STATS -->
+<div id="pgStats" class="page">
+  <div class="sg">
+    <div class="sc"><div class="sn" id="stTotal">0</div><div class="sl">总检查次数</div></div>
+    <div class="sc g"><div class="sn" id="stMonth">0</div><div class="sl">本月检查</div></div>
+    <div class="sc o"><div class="sn" id="stRate">0%</div><div class="sl">综合合格率</div></div>
+    <div class="sc r"><div class="sn" id="stDef">0</div><div class="sl">待整改隐患</div></div>
   </div>
-
-  <div class="card">
-    <div class="card-title">📈 月度检查趋势</div>
-    <div class="chart-container"><canvas id="chartMonthly"></canvas></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🥇 常见隐患 TOP5</div>
-    <div class="chart-container-sm"><canvas id="chartDefects"></canvas></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">📊 用户类型分布</div>
-    <div class="chart-container-sm"><canvas id="chartUserTypes"></canvas></div>
-  </div>
+  <div class="card"><div class="ctitle">📈 月度检查趋势</div><div class="cc"><canvas id="chMonth"></canvas></div></div>
+  <div class="card"><div class="ctitle">🥇 常见隐患 TOP5</div><div class="ccs"><canvas id="chDef"></canvas></div></div>
+  <div class="card"><div class="ctitle">📊 用户类型分布</div><div class="ccs"><canvas id="chType"></canvas></div></div>
 </div>
 
-<!-- ========== PAGE: DEFECTS ========== -->
-<div id="pageDefects" class="page">
+<!-- PAGE: DEFECTS -->
+<div id="pgDefects" class="page">
   <div class="card" style="padding:12px">
-    <div class="filter-tabs" id="defectFilters">
-      <span class="filter-tab active" data-filter="all" onclick="filterDefects('all')">全部</span>
-      <span class="filter-tab" data-filter="pending" onclick="filterDefects('pending')">⏳ 待整改</span>
-      <span class="filter-tab" data-filter="reviewing" onclick="filterDefects('reviewing')">🔍 复查中</span>
-      <span class="filter-tab" data-filter="fixed" onclick="filterDefects('fixed')">✅ 已整改</span>
+    <div class="ft" id="defFilt">
+      <span class="active" onclick="filtDef('all')">全部</span>
+      <span onclick="filtDef('pending')">⏳ 待整改</span>
+      <span onclick="filtDef('reviewing')">🔍 复查中</span>
+      <span onclick="filtDef('fixed')">✅ 已整改</span>
     </div>
   </div>
-  <div id="defectList"></div>
+  <div id="defList"></div>
 </div>
 
-<!-- ========== PAGE: SETTINGS ========== -->
-<div id="pageSettings" class="page">
-  <div class="card">
-    <div class="card-title">⚙️ 机构设置</div>
-    <div class="setting-row">
-      <div><div class="setting-label">机构名称</div><div class="setting-desc">将显示在报告和页面标题中</div></div>
-      <button class="btn btn-sm btn-secondary" onclick="editInstName()">修改</button>
-    </div>
-    <div class="setting-row">
-      <div><div class="setting-label">默认检查人</div><div class="setting-desc">填写时自动填入</div></div>
-      <button class="btn btn-sm btn-secondary" onclick="editDefaultInspector()">修改</button>
+<!-- PAGE: HISTORY -->
+<div id="pgHistory" class="page">
+  <div class="card" style="padding:12px">
+    <div class="sb"><input id="srchInp" placeholder="🔍 搜索地点…" oninput="renderHist()"></div>
+    <div class="bg">
+      <button class="btn btn-s bs" onclick="exportCSV()">📤 导出CSV</button>
+      <button class="btn btn-d bs" onclick="confirmClear()">🗑 清空</button>
     </div>
   </div>
+  <div id="histList"></div>
+</div>
 
+<!-- PAGE: SETTINGS -->
+<div id="pgSettings" class="page">
   <div class="card">
-    <div class="card-title">💾 数据管理</div>
-    <div class="setting-row">
-      <div><div class="setting-label">导出数据备份</div><div class="setting-desc">保存全部数据到JSON文件</div></div>
-      <button class="btn btn-sm btn-secondary" onclick="exportBackup()">导出</button>
-    </div>
-    <div class="setting-row">
-      <div><div class="setting-label">导入数据备份</div><div class="setting-desc">从JSON文件恢复数据（会覆盖现有数据）</div></div>
-      <button class="btn btn-sm btn-secondary" onclick="document.getElementById('importFile').click()">导入</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importBackup(event)">
-    </div>
-    <div class="setting-row" style="border:none">
-      <div><div class="setting-label" style="color:var(--danger)">⚠️ 清空所有数据</div><div class="setting-desc">此操作不可撤销</div></div>
-      <button class="btn btn-sm btn-danger" onclick="confirmClearAll()">清空</button>
-    </div>
+    <div class="ctitle">⚙️ 机构设置</div>
+    <div class="sr"><div><div class="sl2">机构名称</div><div class="sd">显示在报告和标题中</div></div><button class="btn btn-s bs" onclick="setName()">修改</button></div>
+    <div class="sr"><div><div class="sl2">默认检查人</div><div class="sd">填写时自动填入</div></div><button class="btn btn-s bs" onclick="setInspector()">修改</button></div>
   </div>
-
   <div class="card">
-    <div class="card-title">💬 反馈建议</div>
-    <p style="font-size:13px;color:#666;margin:-6px 0 12px">你的每一条建议都会让这个工具变得更好</p>
-    <div class="form-group">
-      <textarea id="feedbackInput" placeholder="说说你的想法…\n- 想要什么新功能？\n- 哪里用着不顺手？\n- 发现了什么Bug？" rows="4" style="font-size:14px"></textarea>
-    </div>
-    <div class="form-group" style="margin-bottom:0">
-      <label style="font-size:13px;color:#888">联系方式（选填，方便回复你）</label>
-      <input type="text" id="feedbackContact" placeholder="微信 / 电话 / 邮箱">
-    </div>
-    <button class="btn btn-primary" onclick="submitFeedback()" style="margin-top:12px">📨 提交反馈</button>
-    <p style="font-size:11px;color:#bbb;text-align:center;margin-top:6px">反馈会保存在本地，开发者会定期收集处理</p>
+    <div class="ctitle">💾 数据管理</div>
+    <div class="sr"><div><div class="sl2">导出备份</div></div><button class="btn btn-s bs" onclick="exportBak()">导出</button></div>
+    <div class="sr"><div><div class="sl2">导入备份</div></div><button class="btn btn-s bs" onclick="document.getElementById('impFile').click()">导入</button><input type="file" id="impFile" accept=".json" style="display:none" onchange="importBak(event)"></div>
+    <div class="sr" style="border:none"><div><div class="sl2" style="color:var(--red)">⚠️ 清空所有数据</div></div><button class="btn btn-d bs" onclick="confirmClear()">清空</button></div>
   </div>
-
   <div class="card">
-    <div class="card-title">ℹ️ 关于</div>
+    <div class="ctitle">💬 反馈建议</div>
+    <p style="font-size:13px;color:#666;margin:-6px 0 12px">每一条建议都会让工具变得更好</p>
+    <div class="fg"><textarea id="fbInp" placeholder="说说你的想法…&#10;- 想要什么新功能？&#10;- 哪里用着不顺手？&#10;- 发现了什么Bug？" rows="4" style="font-size:14px"></textarea></div>
+    <div class="fg" style="margin-bottom:0"><label style="font-size:13px;color:#888">联系方式（选填）</label><input type="text" id="fbCtc" placeholder="微信 / 电话 / 邮箱"></div>
+    <button class="btn btn-p" onclick="submitFb()" style="margin-top:12px">📨 提交反馈</button>
+  </div>
+  <div class="card">
+    <div class="ctitle">ℹ️ 关于</div>
     <div style="font-size:13px;color:#888;line-height:1.8;text-align:center;padding:8px 0">
-      燃气监管工作台 <span id="aboutVersion">v2.0</span><br>
-      由一线燃气监管从业者打造<br>
-      数据仅保存在本地浏览器中<br>
-      完全免费 · 欢迎同行使用交流<br>
-      <span style="font-size:12px;color:#bbb">Made with ♥ for 燃气安全</span>
-    </div>
+      燃气监管工作台 v2.1<br>由一线燃气监管从业者打造<br>数据仅保存在本地浏览器中<br>完全免费 · 欢迎同行使用交流</div>
   </div>
 </div>
 
-<!-- ========== Bottom Nav ========== -->
-<div class="bottom-nav">
-  <button class="nav-item active" onclick="switchPage('form')">
-    <div class="nav-item-wrap"><span class="nav-icon">📝</span>填写</div>
-  </button>
-  <button class="nav-item" onclick="switchPage('stats')">
-    <div class="nav-item-wrap"><span class="nav-icon">📊</span>统计</div>
-  </button>
-  <button class="nav-item" onclick="switchPage('defects')">
-    <div class="nav-item-wrap">
-      <span class="nav-icon">⚠️</span>
-      <span class="nav-badge" id="defectBadge" style="display:none">0</span>隐患
-    </div>
-  </button>
-  <button class="nav-item" onclick="switchPage('history')">
-    <div class="nav-item-wrap"><span class="nav-icon">📂</span>记录</div>
-  </button>
-  <button class="nav-item" onclick="switchPage('settings')">
-    <div class="nav-item-wrap"><span class="nav-icon">⚙️</span>设置</div>
-  </button>
+<!-- Bottom Nav -->
+<div class="bnav">
+  <button class="nitem active" onclick="nav('form')"><div class="nwrap"><span class="ni">📝</span>填写</div></button>
+  <button class="nitem" onclick="nav('stats')"><div class="nwrap"><span class="ni">📊</span>统计</div></button>
+  <button class="nitem" onclick="nav('defects')"><div class="nwrap"><span class="ni">⚠️</span><span class="nbadge" id="defBadge" style="display:none">0</span>隐患</div></button>
+  <button class="nitem" onclick="nav('history')"><div class="nwrap"><span class="ni">📂</span>记录</div></button>
+  <button class="nitem" onclick="nav('settings')"><div class="nwrap"><span class="ni">⚙️</span>设置</div></button>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <!-- Modal -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal-content">
-    <div class="modal-title" id="modalTitle">确认</div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" id="modalConfirmBtn" onclick="">确认</button>
+<div class="mo" id="modal">
+  <div class="mc">
+    <div class="mt" id="modalTitle">确认</div>
+    <div class="mb" id="modalBody"></div>
+    <div class="ma">
+      <button class="btn btn-s" onclick="closeModal()">取消</button>
+      <button class="btn btn-p" id="modalBtn">确认</button>
     </div>
   </div>
 </div>
 
 <script>
-// ========== CONFIG ==========
-const STORAGE_KEYS = {records:'gas_records_v2',defects:'gas_defects_v2',config:'gas_config_v2'};
-const DEFAULT_ITEMS = [
-  '燃气管线是否完好','燃气表是否正常','灶具点火是否正常',
-  '热水器排烟是否通畅','报警器是否正常工作','阀门启闭是否灵活',
-  '管道有无锈蚀泄漏','通风条件是否达标'
-];
-const DEFECT_STATUS = {PENDING:'pending',FIXED:'fixed',REVIEWING:'reviewing'};
-let chartMonthly = null, chartDefects = null, chartUserTypes = null;
+/* ============ CONFIG ============ */
+var SK = {r:'gas_r',d:'gas_d',c:'gas_c'};
+var DI = ['燃气管线是否完好','燃气表是否正常','灶具点火是否正常','热水器排烟是否通畅','报警器是否正常工作','阀门启闭是否灵活','管道有无锈蚀泄漏','通风条件是否达标'];
+var SUBMITTING = false;
+var ch1=null,ch2=null,ch3=null;
 
-// ========== CONFIG ==========
-function getConfig(){
-  try{return JSON.parse(localStorage.getItem(STORAGE_KEYS.config)||'{}')}catch(e){return{}}
+function getC(){try{return JSON.parse(localStorage.getItem(SK.c)||'{}')}catch(e){return{}}}
+function setC(c){localStorage.setItem(SK.c,JSON.stringify(c));applyC()}
+function applyC(){
+  var c=getC(),n=c.n||'燃气监管工作台';
+  document.getElementById('instName').innerHTML='🏢 '+n;
+  document.getElementById('rptHead').textContent='📄 '+n+'安全检查报告';
+  var di=c.i||'';
+  if(di&&!document.getElementById('fi').value)document.getElementById('fi').value=di;
 }
-function saveConfig(c){
-  localStorage.setItem(STORAGE_KEYS.config,JSON.stringify(c));
-  applyConfig();
-}
-function applyConfig(){
-  const c=getConfig();
-  const name = c.instName || '燃气监管工作台';
-  document.getElementById('instName').innerHTML = '🏢 '+name;
-  document.getElementById('reportInstHeading').textContent = '📄 '+name+'安全检查报告';
-  const defInspector = c.defaultInspector || '';
-  if(defInspector && !document.getElementById('checkInspector').value){
-    document.getElementById('checkInspector').value = defInspector;
-  }
-}
+function setName(){var c=getC(),n=prompt('机构名称：',c.n||'燃气监管所');if(n&&n.trim()){c.n=n.trim();setC(c);toast('✅ 已更新')}}
+function setInspector(){var c=getC(),n=prompt('默认检查人：',c.i||'');c.i=n||'';setC(c);toast(n?'✅ 已设置':'已清除')}
 
-// ========== SETTINGS ==========
-function editInstName(){
-  const c=getConfig();
-  const name = prompt('请输入机构名称：', c.instName || '燃气监管所');
-  if(name && name.trim()){c.instName=name.trim();saveConfig(c);showToast('✅ 机构名称已更新');}
-}
-function editDefaultInspector(){
-  const c=getConfig();
-  const name = prompt('请输入默认检查人姓名：', c.defaultInspector || '');
-  c.defaultInspector = name || '';
-  saveConfig(c);
-  showToast(name ? '✅ 默认检查人已设置' : '已清除默认检查人');
-}
+function getR(){try{return JSON.parse(localStorage.getItem(SK.r)||'[]')}catch(e){return[]}}
+function setR(r){localStorage.setItem(SK.r,JSON.stringify(r))}
+function getD(){try{return JSON.parse(localStorage.getItem(SK.d)||'[]')}catch(e){return[]}}
+function setD(d){localStorage.setItem(SK.d,JSON.stringify(d));updBadge()}
 
-// ========== RECORDS ==========
-function getRecords(){
-  try{return JSON.parse(localStorage.getItem(STORAGE_KEYS.records)||'[]')}catch(e){return[]}
-}
-function saveRecords(records){
-  localStorage.setItem(STORAGE_KEYS.records,JSON.stringify(records));
-}
-function saveRecord(record){
-  const records=getRecords();
-  records.unshift(record);
-  saveRecords(records);
-  updateDefectBadge();
-}
-function deleteRecord(id){
-  let records=getRecords().filter(r=>r.id!==id);
-  saveRecords(records);
-  renderHistory();renderStats();updateDefectBadge();showToast('已删除');
-}
-function clearAllRecords(){
-  localStorage.removeItem(STORAGE_KEYS.records);
-  renderHistory();renderStats();updateDefectBadge();showToast('已清空');
-}
-
-// ========== DEFECTS ==========
-function getDefects(){
-  try{return JSON.parse(localStorage.getItem(STORAGE_KEYS.defects)||'[]')}catch(e){return[]}
-}
-function saveDefects(defects){
-  localStorage.setItem(STORAGE_KEYS.defects,JSON.stringify(defects));
-  updateDefectBadge();
-}
-function addDefectsFromRecord(record){
-  let defects=getDefects();
-  const failedItems = record.items.filter(i=>i.result==='不合格');
-  failedItems.forEach(item=>{
-    defects.unshift({
-      id:Date.now()+Math.random(),
-      recordId:record.id,
-      date:record.date,
-      location:record.location,
-      itemName:item.name,
-      note:item.note||'',
-      status:DEFECT_STATUS.PENDING,
-      fixNote:'',
-      createdAt:record.createdAt
-    });
-  });
-  saveDefects(defects);
-  renderDefects();updateDefectBadge();
-}
-function updateDefectBadge(){
-  const defects=getDefects().filter(d=>d.status===DEFECT_STATUS.PENDING);
-  const badge=document.getElementById('defectBadge');
-  if(defects.length>0){badge.textContent=defects.length;badge.style.display='inline'}else{badge.style.display='none'}
-}
-function updateDefectStatus(defectId,newStatus,fixNote){
-  let defects=getDefects();
-  const d=defects.find(x=>x.id===defectId);
-  if(d){d.status=newStatus;if(fixNote)d.fixNote=fixNote;d.updatedAt=new Date().toISOString()}
-  saveDefects(defects);
-  renderDefects();updateDefectBadge();
-}
-
-// ========== FEEDBACK ==========
-const FEEDBACK_STORAGE_KEY = 'gas_feedback_v1';
-
-function submitFeedback(){
-  const text = document.getElementById('feedbackInput').value.trim();
-  const contact = document.getElementById('feedbackContact').value.trim();
-  if(!text){showToast('请填写反馈内容');return}
-  
-  const feedback = {
-    id: Date.now(),
-    text: text,
-    contact: contact || '(未留联系方式)',
-    date: new Date().toLocaleString('zh-CN'),
-    version: 'v2.0'
-  };
-  
-  // Save to localStorage
-  let list = [];
-  try{list = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY)||'[]')}catch(e){}
-  list.unshift(feedback);
-  localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(list));
-  
-  // Clear form
-  document.getElementById('feedbackInput').value = '';
-  document.getElementById('feedbackContact').value = '';
-  
-  showToast('✅ 感谢你的反馈！');
-  
-  // Show summary
-  setTimeout(() => {
-    showModal('反馈已保存', 
-      '你的反馈已保存在本地浏览器中。\n\n我们定期收集所有用户的反馈，\n每一条都会认真看！\n\n如需直接联系开发者，\n请通过微信沟通。',
-      closeModal);
-  }, 500);
-}
-
-function exportFeedback(){
-  let list = [];
-  try{list = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY)||'[]')}catch(e){}
-  if(list.length === 0){showToast('暂无反馈记录');return}
-  const blob = new Blob([JSON.stringify(list,null,2)], {type:'application/json'});
-  const link = document.createElement('a');
-  link.href = URL.createObjectURL(blob);
-  link.download = `用户反馈_${new Date().toISOString().split('T')[0]}.json`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-  showToast('✅ 反馈数据已导出');
-}
-
-// ========== INIT ==========
+/* ============ FORM ============ */
 function init(){
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('checkDate').value=today;
-  applyConfig();
-  renderDefaultItems();
-  renderHistory();
-  renderStats();
-  renderDefects();
-  updateDefectBadge();
+  document.getElementById('fd').value=new Date().toISOString().split('T')[0];
+  applyC();renderItems();renderHist();renderStats();renderDef();updBadge();
 }
-
-// ========== CHECK ITEMS ==========
-function renderDefaultItems(){
-  const container=document.getElementById('checkItemsList');
-  container.innerHTML='';
-  DEFAULT_ITEMS.forEach((name,idx)=>{
-    container.appendChild(createCheckItemEl(name,false,idx));
-  });
+function renderItems(){
+  var el=document.getElementById('ciList');el.innerHTML='';
+  DI.forEach(function(n,i){el.appendChild(mkItem(n,false,i))});
 }
-function createCheckItemEl(name,isCustom,idx){
-  const div=document.createElement('div');
-  div.className='check-item';
-  div.dataset.name=name;
-  div.dataset.custom=isCustom?'1':'0';
-  let delBtn='';
-  if(isCustom) delBtn=`<button class="item-del" onclick="this.closest('.check-item').remove()" type="button">✕</button>`;
-  div.innerHTML=`
-    <div class="item-header"><span class="item-name">${name}</span>${delBtn}</div>
-    <div class="check-result">
-      <label class="pass"><input type="radio" name="r_${idx}" value="合格" checked><span>合格</span></label>
-      <label class="fail"><input type="radio" name="r_${idx}" value="不合格"><span>不合格</span></label>
-      <label class="na"><input type="radio" name="r_${idx}" value="不适用"><span>不适用</span></label>
-    </div>
-    <input class="item-note" placeholder="备注（可选）" type="text">
-  `;
-  return div;
+function mkItem(n,isC,idx){
+  var d=document.createElement('div');d.className='ci';
+  d.innerHTML='<div class="ci-h"><span class="ci-n">'+n+'</span>'+(isC?'<button class="ci-d" onclick="this.parentNode.parentNode.remove()">✕</button>':'')+'</div>'+
+    '<div class="cr"><label class="p"><input type="radio" name="r'+idx+'" value="合格" checked><span>合格</span></label>'+
+    '<label class="f"><input type="radio" name="r'+idx+'" value="不合格"><span>不合格</span></label>'+
+    '<label class="n"><input type="radio" name="r'+idx+'" value="不适用"><span>不适用</span></label></div>'+
+    '<input class="nt" placeholder="备注（可选）" type="text">';
+  return d;
 }
-function addCustomItem(){
-  const name=prompt('请输入自定义检查项目名称：');
-  if(!name||!name.trim())return;
-  const container=document.getElementById('checkItemsList');
-  container.appendChild(createCheckItemEl(name.trim(),true,container.children.length));
-  showToast('已添加：'+name.trim());
+function addItem(){
+  var n=prompt('检查项目名称：');
+  if(!n||!n.trim())return;
+  document.getElementById('ciList').appendChild(mkItem(n.trim(),true,document.getElementById('ciList').children.length));
+  toast('已添加：'+n.trim());
 }
-function getCheckItems(){
-  const items=[];
-  document.querySelectorAll('.check-item').forEach(el=>{
-    const name=el.dataset.name;
-    const selected=el.querySelector('input[type="radio"]:checked');
-    const value=selected?selected.value:'合格';
-    const note=el.querySelector('.item-note').value.trim();
-    items.push({name,result:value,note});
+function getItems(){
+  var items=[];
+  document.querySelectorAll('.ci').forEach(function(el){
+    var name=el.querySelector('.ci-n').textContent;
+    var sel=el.querySelector('input[type="radio"]:checked');
+    var val=sel?sel.value:'合格';
+    var note=el.querySelector('.nt').value.trim();
+    items.push({n:name,r:val,note:note});
   });
   return items;
 }
 
-// ========== SUBMIT ==========
-var SUBMIT_LOCK = false;
+/* ============ SUBMIT ============ */
 function submitForm(){
-  if(SUBMIT_LOCK){showToast('⏳ 正在提交，请稍候...');return}
-  SUBMIT_LOCK=true;
-  try{
-    const location=document.getElementById('checkLocation').value.trim();
-    const deviceType=document.getElementById('deviceType').value;
-    const inspector=document.getElementById('checkInspector').value.trim();
-    const date=document.getElementById('checkDate').value;
-    const overallNote=document.getElementById('overallNote').value.trim();
-    if(!location){showToast('请输入地点/用户');SUBMIT_LOCK=false;return}
-    if(!deviceType){showToast('请选择用户类型');SUBMIT_LOCK=false;return}
-    if(!inspector){showToast('请输入检查人姓名');SUBMIT_LOCK=false;return}
-    const items=getCheckItems();
-    const reportText=buildReport(date,location,deviceType,items,overallNote,inspector);
-    document.getElementById('reportContent').textContent=reportText;
-    const record={id:Date.now(),date,location,deviceType,items,overallNote,inspector,reportText,createdAt:new Date().toISOString()};
-    saveRecord(record);
-    addDefectsFromRecord(record);
-    renderHistory();
-    try{renderStats()}catch(e){}
-    showToast('✅ 报告已保存');
-    switchPage('report');
-  }catch(e){showToast('❌ 提交出错，请刷新重试')}
-  SUBMIT_LOCK=false;
-}
-
-function buildReport(date,location,deviceType,items,overallNote,inspector){
-  const c=getConfig();
-  const inst=c.instName||'燃气监管所';
-  let itemTable='';
-  const statusMap={'合格':'✓ 合格','不合格':'✗ 不合格','不适用':'— 不适用'};
-  items.forEach((item,i)=>{
-    const s=statusMap[item.result]||item.result;
-    const n=item.note?'【备注】'+item.note:'';
-    itemTable+=`  ${i+1}. ${item.name}  ——  ${s}  ${n}\n`;
-  });
-  const hasFail=items.some(i=>i.result==='不合格');
-  return `═══════════════════════════════════════
-          ${inst}
-═══════════════════════════════════════
-
-检查单位：${inst}
-检查日期：${date}
-检查地点：${location}
-用户类型：${deviceType}
-检查人员：${inspector}
-
-───────────────────────────────────
-一、检查项目及结果
-───────────────────────────────────
-${itemTable}
-───────────────────────────────────
-二、总体情况
-───────────────────────────────────
-${overallNote||'（无）'}
-
-───────────────────────────────────
-三、检查结论
-───────────────────────────────────
-${hasFail?'⚠ 存在不合格项，需整改。':'✓ 全部检查项目合格。'}
-
-───────────────────────────────────
-
-检查人（签字）：___________    日期：___________
-
-${inst}（盖章）
-
-═══════════════════════════════════════
-本报告由燃气监管工作台自动生成
-生成时间：${new Date().toLocaleString('zh-CN')}`;
-}
-
-// ========== REPORT PAGE ==========
-function copyReport(){
-  const text=document.getElementById('reportContent').textContent;
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(()=>showToast('📋 已复制')).catch(()=>fallbackCopy(text));
-  }else{fallbackCopy(text)}
-}
-function fallbackCopy(text){
-  const ta=document.createElement('textarea');
-  ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';
-  document.body.appendChild(ta);ta.select();
-  try{document.execCommand('copy');showToast('📋 已复制')}catch{showToast('复制失败，请手动复制')}
-  document.body.removeChild(ta);
-}
-function printReport(){
-  window.print();
-}
-function goBackForm(){
-  switchPage('form');
-}
-
-// ========== HISTORY ==========
-let currentFilter='all';
-function renderHistory(){
-  const container=document.getElementById('historyList');
-  const keyword=document.getElementById('searchInput').value.trim().toLowerCase();
-  let records=getRecords();
-  if(keyword) records=records.filter(r=>r.location.toLowerCase().includes(keyword)||r.deviceType.toLowerCase().includes(keyword));
-  if(records.length===0){
-    container.innerHTML='<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">暂无检查记录</div></div>';
-    return;
-  }
-  container.innerHTML='';
-  records.forEach(r=>{
-    const div=document.createElement('div');
-    div.className='record-item';
-    div.innerHTML=`
-      <div class="ri-header"><span class="ri-date">📅 ${r.date}</span><span class="ri-type">${r.deviceType}</span></div>
-      <div class="ri-loc">${r.location}</div>
-      <div class="ri-inspector">检查人：${r.inspector}</div>
-      <div class="record-detail" id="detail_${r.id}" style="display:none">
-        <div class="rd-row"><span class="rd-label">日期：</span><span class="rd-value">${r.date}</span></div>
-        <div class="rd-row"><span class="rd-label">地点：</span><span class="rd-value">${r.location}</span></div>
-        <div class="rd-row"><span class="rd-label">用户：</span><span class="rd-value">${r.deviceType}</span></div>
-        <div class="rd-row"><span class="rd-label">检查人：</span><span class="rd-value">${r.inspector}</span></div>
-        ${r.overallNote?`<div class="rd-row"><span class="rd-label">备注：</span><span class="rd-value">${r.overallNote}</span></div>`:''}
-        <div class="rd-items">${r.items.map(i=>{
-          let cls='pass';if(i.result==='不合格')cls='fail';else if(i.result==='不适用')cls='na';
-          const n=i.note?' '+i.note:'';
-          return `<div class="rd-item"><span class="rd-status ${cls}">${i.result}</span>${i.name}${n}</div>`;
-        }).join('')}</div>
-        <div style="margin-top:10px;display:flex;gap:6px">
-          <button class="btn btn-sm btn-secondary" onclick="event.stopPropagation();copyDetail(${r.id})">📋 复制</button>
-          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();confirmDelete(${r.id})">🗑 删除</button>
-        </div>
-      </div>
-    `;
-    div.addEventListener('click',()=>{
-      const el=document.getElementById('detail_'+r.id);
-      if(el) el.style.display=(el.style.display==='none'||el.style.display==='')?'block':'none';
-    });
-    container.appendChild(div);
-  });
-}
-function copyDetail(id){
-  const r=getRecords().find(x=>x.id===id);
-  if(!r)return;
-  if(navigator.clipboard&&navigator.clipboard.writeText){
-    navigator.clipboard.writeText(r.reportText).then(()=>showToast('📋 已复制')).catch(()=>fallbackCopy(r.reportText));
-  }else{fallbackCopy(r.reportText)}
-}
-function confirmDelete(id){
-  showModal('确认删除','确定要删除这条检查记录吗？此操作不可撤销。',()=>{deleteRecord(id);closeModal()});
-}
-function confirmClearAll(){
-  const records=getRecords();
-  if(records.length===0){showToast('暂无记录');return}
-  showModal('确认清空',`确定要清空全部 ${records.length} 条记录和相关的隐患数据吗？此操作不可撤销。`,()=>{clearAllRecords();localStorage.removeItem(STORAGE_KEYS.defects);renderDefects();updateDefectBadge();closeModal()});
-}
-
-// ========== STATS ==========
-function renderStats(){
-  const records=getRecords();
-  const total=records.length;
-  document.getElementById('statTotal').textContent=total;
-  const now=new Date();
-  const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-  const monthCount=records.filter(r=>r.date.startsWith(thisMonth)).length;
-  document.getElementById('statMonth').textContent=monthCount;
-  let totalItems=0,passItems=0;
-  records.forEach(r=>{r.items.forEach(i=>{totalItems++;if(i.result==='合格')passItems++})});
-  const passRate=totalItems>0?Math.round(passItems/totalItems*100):100;
-  document.getElementById('statPassRate').textContent=passRate+'%';
-  const pendingDefects=getDefects().filter(d=>d.status===DEFECT_STATUS.PENDING).length;
-  document.getElementById('statDefects').textContent=pendingDefects;
-  renderChartMonthly(records);
-  renderChartDefects(records);
-  renderChartUserTypes(records);
-}
-function renderChartMonthly(records){
-  try{
-    if(typeof Chart==='undefined') throw '图表库未加载';
-    const months={};const now=new Date();
-    for(let i=5;i>=0;i--){const d=new Date(now.getFullYear(),now.getMonth()-i,1);months[d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')]=0}
-    records.forEach(function(r){var k=r.date.substring(0,7);if(k in months)months[k]++});
-    var labels=Object.keys(months).map(function(k){return k.substring(5)+'月'});
-    var data=Object.values(months);
-    if(chartMonthly){try{chartMonthly.destroy()}catch(e){}}
-    chartMonthly=new Chart(document.getElementById('chartMonthly').getContext('2d'),{type:'bar',data:{labels:labels,datasets:[{label:'检查次数',data:data,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:'#f0f0f0'}},x:{ticks:{font:{size:11}}}}}});
-  }catch(e){document.getElementById('chartMonthly').parentNode.innerHTML='<div style="padding:20px;text-align:center;color:#aaa;font-size:13px">暂无图表数据</div>'}
-}
-function renderChartDefects(records){
-  try{
-    if(typeof Chart==='undefined')return;
-    const dc={};records.forEach(function(r){r.items.forEach(function(i){if(i.result==='不合格'){dc[i.name]=(dc[i.name]||0)+1}})});
-    const s=Object.entries(dc).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
-    if(chartDefects){try{chartDefects.destroy()}catch(e){}}
-    chartDefects=new Chart(document.getElementById('chartDefects').getContext('2d'),{type:'bar',
-      data:{labels:s.map(function(x){return x[0].length>10?x[0].substring(0,10)+'…':x[0]}),datasets:[{label:'次数',data:s.map(function(x){return x[1]}),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},
-      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f0f0f0'}},y:{ticks:{font:{size:10}}}}}});
-  }catch(e){}
-}
-function renderChartUserTypes(records){
-  try{
-    if(typeof Chart==='undefined')return;
-    const tc={};records.forEach(function(r){tc[r.deviceType]=(tc[r.deviceType]||0)+1});
-    const e=Object.entries(tc);
-    if(chartUserTypes){try{chartUserTypes.destroy()}catch(e){}}
-    const colors=['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'];
-    chartUserTypes=new Chart(document.getElementById('chartUserTypes').getContext('2d'),{type:'doughnut',
-      data:{labels:e.map(function(x){return x[0]}),datasets:[{data:e.map(function(x){return x[1]}),backgroundColor:colors.slice(0,e.length),borderWidth:2,borderColor:'#fff'}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}});
-  }catch(e){}
-}
-
-// ========== DEFECTS ==========
-let defectFilter='all';
-function renderDefects(){
-  const container=document.getElementById('defectList');
-  let defects=getDefects();
-  if(defectFilter!=='all') defects=defects.filter(d=>d.status===defectFilter);
-  if(defects.length===0){
-    const msg=defectFilter==='all'?'暂无隐患记录':{pending:'暂无待整改隐患',reviewing:'暂无复查中隐患',fixed:'暂无已整改隐患'}[defectFilter]||'暂无记录';
-    container.innerHTML=`<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">${msg}</div></div>`;
-    return;
-  }
-  container.innerHTML='';
-  defects.forEach(d=>{
-    const div=document.createElement('div');
-    div.className='defect-card';
-    if(d.status===DEFECT_STATUS.FIXED)div.classList.add('fixed');
-    if(d.status===DEFECT_STATUS.REVIEWING)div.classList.add('reviewing');
-    const statusMap={pending:'⏳ 待整改',reviewing:'🔍 复查中',fixed:'✅ 已整改'};
-    const statusCls={pending:'pending',reviewing:'reviewing',fixed:'fixed'};
-    div.innerHTML=`
-      <div class="dc-header">
-        <span class="dc-title">${d.itemName}</span>
-        <span class="dc-status ${statusCls[d.status]||'pending'}">${statusMap[d.status]||d.status}</span>
-      </div>
-      <div class="dc-meta">📅 ${d.date} · 📍 ${d.location}</div>
-      ${d.fixNote?`<div style="font-size:13px;color:#555;margin-top:4px;padding:6px 8px;background:#f5f5f5;border-radius:6px">整改备注：${d.fixNote}</div>`:''}
-      <div class="dc-actions">
-        ${d.status===DEFECT_STATUS.PENDING?`
-          <button class="btn btn-sm btn-secondary" onclick="updateDefectStatus(${d.id},'${DEFECT_STATUS.REVIEWING}','')">🔍 标记复查中</button>
-          <button class="btn btn-sm btn-primary" onclick="promptFixNote(${d.id})">✅ 标记已整改</button>
-        `:''}
-        ${d.status===DEFECT_STATUS.REVIEWING?`
-          <button class="btn btn-sm btn-primary" onclick="promptFixNote(${d.id})">✅ 完成整改</button>
-          <button class="btn btn-sm btn-secondary" onclick="updateDefectStatus(${d.id},'${DEFECT_STATUS.PENDING}','')">⏳ 退回待整改</button>
-        `:''}
-        ${d.status===DEFECT_STATUS.FIXED?`
-          <span style="font-size:12px;color:#999">已于 ${d.updatedAt?new Date(d.updatedAt).toLocaleDateString('zh-CN'):'—'} 完成整改</span>
-        `:''}
-      </div>
-    `;
-    container.appendChild(div);
-  });
-}
-function filterDefects(filter){
-  defectFilter=filter;
-  document.querySelectorAll('#defectFilters .filter-tab').forEach(t=>t.classList.toggle('active',t.dataset.filter===filter));
-  renderDefects();
-}
-function promptFixNote(defectId){
-  const note=prompt('请输入整改说明（可选）：');
-  updateDefectStatus(defectId,DEFECT_STATUS.FIXED,note||'');
-  showToast('✅ 已标记为已整改');
-}
-
-// ========== BACKUP ==========
-function exportBackup(){
-  const data={
-    version:'2.0',
-    exportedAt:new Date().toISOString(),
-    records:getRecords(),
-    defects:getDefects(),
-    config:getConfig()
-  };
-  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  const link=document.createElement('a');
-  link.href=URL.createObjectURL(blob);
-  link.download=`燃气数据备份_${new Date().toISOString().split('T')[0]}.json`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-  showToast('✅ 数据已导出');
-}
-function importBackup(e){
-  const file=e.target.files[0];
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=function(ev){
-    try{
-      const data=JSON.parse(ev.target.result);
-      if(!data.records||!Array.isArray(data.records)){showToast('❌ 无效的备份文件');return}
-      if(data.records.length>0) localStorage.setItem(STORAGE_KEYS.records,JSON.stringify(data.records));
-      if(data.defects&&Array.isArray(data.defects)) localStorage.setItem(STORAGE_KEYS.defects,JSON.stringify(data.defects));
-      if(data.config) localStorage.setItem(STORAGE_KEYS.config,JSON.stringify(data.config));
-      applyConfig();renderHistory();renderStats();renderDefects();updateDefectBadge();
-      showToast(`✅ 已导入 ${data.records.length} 条记录`);
-    }catch(e){showToast('❌ 文件解析失败');}
-  };
-  reader.readAsText(file);
-  e.target.value='';
-}
-
-// ========== EXPORT CSV ==========
-function exportCSV(){
-  const records=getRecords();
-  if(records.length===0){showToast('暂无记录可导出');return}
-  let csv='\uFEFF序号,检查日期,地点/用户,用户类型,检查人,检查项目,结果,项目备注,总体备注\n';
-  records.forEach((r,idx)=>{
-    const items=r.items||[];
-    if(items.length===0){
-      csv+=`${idx+1},"${r.date}","${r.location}","${r.deviceType}","${r.inspector}","","","","${r.overallNote||''}"\n`;
-    }else{
-      items.forEach((item,iidx)=>{
-        csv+=`${idx+1},"${r.date}","${r.location}","${r.deviceType}","${r.inspector}","${item.name}","${item.result}","${item.note||''}","${iidx===0?(r.overallNote||''):''}"\n`;
-      });
-    }
-  });
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const link=document.createElement('a');
-  link.href=URL.createObjectURL(blob);
-  link.download=`燃气检查记录_${new Date().toISOString().split('T')[0]}.csv`;
-  link.click();
-  URL.revokeObjectURL(link.href);
-  showToast('📤 已导出CSV');
-}
-
-// ========== NAVIGATION ==========
-function switchPage(page){
-  const pages={form:'pageForm',stats:'pageStats',defects:'pageDefects',history:'pageHistory',settings:'pageSettings'};
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(pages[page]).classList.add('active');
-  document.querySelectorAll('.nav-item').forEach((n,i)=>{
-    n.classList.toggle('active',['form','stats','defects','history','settings'][i]===page);
-  });
-  if(page==='stats')renderStats();
-  if(page==='defects')renderDefects();
-  if(page==='history')renderHistory();
-}
-
-// ========== SEARCH ==========
-function searchRecords(keyword){
-  const container=document.getElementById('historyList');
-  const records=getRecords().filter(r=>keyword===''||r.location.includes(keyword)||r.deviceType.includes(keyword));
-  // Reuse renderHistory logic - just trigger from input
-}
-
-// ========== MODAL ==========
-function showModal(title,body,onConfirm){
-  document.getElementById('modalTitle').textContent=title;
-  document.getElementById('modalBody').textContent=body;
-  document.getElementById('modalOverlay').classList.add('show');
-  document.getElementById('modalConfirmBtn').onclick=onConfirm;
-}
-function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-document.getElementById('modalOverlay').addEventListener('click',function(e){if(e.target===this)closeModal()});
-
-// ========== TOAST ==========
-function showToast(msg){
-  const el=document.getElementById('toast');
-  el.textContent=msg;
-  el.classList.add('show');
-  clearTimeout(el._timer);
-  el._timer=setTimeout(()=>el.classList.remove('show'),1800);
-}
-
-// ========== INIT ON LOAD ==========
-document.addEventListener('DOMContentLoaded',init);
-
-// ========== UPDATE CHECK ==========
-const APP_VERSION = "v2.0";
-const UPDATE_URL = "https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html";
-
-function checkUpdate() {
-  showToast("⏳ 正在检查更新...");
-  fetch(UPDATE_URL)
-    .then(r => r.text())
-    .then(html => {
-      const match = html.match(/APP_VERSION = "([^"]+)"/);
-      if (match) {
-        const latest = match[1];
-        if (latest !== APP_VERSION) {
-          showModal("发现新版本", `当前版本：${APP_VERSION}\n最新版本：${latest}\n\n是否前往GitHub下载最新版？`, () => {
-            window.open("https://github.com/hlbfox/gas-inspection-platform", "_blank");
-            closeModal();
-          });
-        } else {
-          showToast("✅ 已是最新版本 " + APP_VERSION);
-        }
-      } else {
-        showToast("❌ 无法获取版本信息");
+  if(SUBMITTING){toast('⏳ 正在提交…');return}
+  SUBMITTING=true;
+  try {
+    var loc=document.getElementById('fl').value.trim();
+    var type=document.getElementById('ftype').value;
+    var ins=document.getElementById('fi').value.trim();
+    var dt=document.getElementById('fd').value;
+    var note=document.getElementById('fnote').value.trim();
+    if(!loc){toast('请输入地点/用户');SUBMITTING=false;return}
+    if(!type){toast('请选择用户类型');SUBMITTING=false;return}
+    if(!ins){toast('请输入检查人姓名');SUBMITTING=false;return}
+    
+    var items=getItems();
+    var rpt=buildRpt(dt,loc,type,items,note,ins);
+    document.getElementById('rptContent').textContent=rpt;
+    
+    var rec={id:Date.now(),dt:dt,loc:loc,type:type,items:items,note:note,ins:ins,rpt:rpt,ts:new Date().toISOString()};
+    var recs=getR();recs.unshift(rec);setR(recs);
+    
+    // Add defects
+    var ds=getD();
+    items.forEach(function(it){
+      if(it.r==='不合格'){
+        ds.unshift({id:Date.now()+Math.random(),rid:rec.id,dt:dt,loc:loc,item:it.n,note:it.note||'',st:'pending',fix:'',ts:rec.ts});
       }
-    })
-    .catch(() => showToast("❌ 检查更新失败，请检查网络"));
+    });
+    setD(ds);
+    
+    renderHist();
+    try{renderStats()}catch(e){}
+    toast('✅ 报告已保存');
+    nav('report');
+  } catch(e){toast('❌ 提交出错，请刷新重试')}
+  SUBMITTING=false;
 }
 
+function buildRpt(dt,loc,type,items,note,ins){
+  var c=getC(),inst=c.n||'燃气监管所';
+  var t='';
+  items.forEach(function(it,i){
+    var s={'合格':'✓ 合格','不合格':'✗ 不合格','不适用':'— 不适用'}[it.r]||it.r;
+    var n=it.note?'【备注】'+it.note:'';
+    t+='  '+(i+1)+'. '+it.n+'  ——  '+s+'  '+n+'\n';
+  });
+  var fail=items.some(function(it){return it.r==='不合格'});
+  return '═══════════════════════════════\n          '+inst+'\n═══════════════════════════════\n\n检查单位：'+inst+'\n检查日期：'+dt+'\n检查地点：'+loc+'\n用户类型：'+type+'\n检查人员：'+ins+'\n\n───────────────────────────────\n一、检查项目及结果\n───────────────────────────────\n'+t+'\n───────────────────────────────\n二、总体情况\n───────────────────────────────\n'+(note||'（无）')+'\n\n───────────────────────────────\n三、检查结论\n───────────────────────────────\n'+(fail?'⚠ 存在不合格项，需整改。':'✓ 全部检查项目合格。')+'\n\n───────────────────────────────\n\n检查人（签字）：___________    日期：___________\n\n'+inst+'（盖章）\n\n═══════════════════════════════\n本报告由燃气监管工作台自动生成\n生成时间：'+new Date().toLocaleString('zh-CN');
+}
+
+/* ============ REPORT ============ */
+function copyRpt(){
+  var t=document.getElementById('rptContent').textContent;
+  if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('📋 已复制')}).catch(function(){fallback(t)})}
+  else{fallback(t)}
+}
+function fallback(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('📋 已复制')}catch(e){toast('复制失败')}document.body.removeChild(ta)}
+function goBack(){nav('form')}
+
+/* ============ HISTORY ============ */
+function renderHist(){
+  var el=document.getElementById('histList');
+  var kw=document.getElementById('srchInp').value.trim().toLowerCase();
+  var rs=getR();
+  if(kw)rs=rs.filter(function(r){return r.loc.toLowerCase().includes(kw)||r.type.toLowerCase().includes(kw)});
+  if(!rs.length){el.innerHTML='<div class="es"><div class="ei">📂</div><div class="et">暂无检查记录</div></div>';return}
+  el.innerHTML='';
+  rs.forEach(function(r){
+    var d=document.createElement('div');d.className='ri';
+    d.innerHTML='<div class="ri-h"><span class="ri-d">📅 '+r.dt+'</span><span class="ri-t">'+r.type+'</span></div>'+
+      '<div class="ri-l">'+r.loc+'</div><div class="ri-i">检查人：'+r.ins+'</div>'+
+      '<div class="rd" id="det_'+r.id+'">'+
+      '<div class="rdr"><span class="rdl">日期：</span><span class="rdv">'+r.dt+'</span></div>'+
+      '<div class="rdr"><span class="rdl">地点：</span><span class="rdv">'+r.loc+'</span></div>'+
+      '<div class="rdr"><span class="rdl">用户：</span><span class="rdv">'+r.type+'</span></div>'+
+      '<div class="rdr"><span class="rdl">检查人：</span><span class="rdv">'+r.ins+'</span></div>'+
+      (r.note?'<div class="rdr"><span class="rdl">备注：</span><span class="rdv">'+r.note+'</span></div>':'')+
+      '<div class="rdi">'+r.items.map(function(it){var c='p';if(it.r==='不合格')c='f';else if(it.r==='不适用')c='n';return '<div class="rdi2"><span class="rds '+c+'">'+it.r+'</span>'+it.n+(it.note?' '+it.note:'')+'</div>'}).join('')+'</div>'+
+      '<div style="margin-top:10px;display:flex;gap:6px">'+
+      '<button class="btn btn-s bs" onclick="event.stopPropagation();copyHist('+r.id+')">📋 复制</button>'+
+      '<button class="btn btn-d bs" onclick="event.stopPropagation();delRec('+r.id+')">🗑 删除</button></div></div>';
+    d.onclick=function(){var e=document.getElementById('det_'+r.id);if(e)e.style.display=(e.style.display==='none'||e.style.display==='')?'block':'none'};
+    el.appendChild(d);
+  });
+}
+function copyHist(id){var r=getR().find(function(x){return x.id===id});if(r)copyRptText(r.rpt)}
+function copyRptText(t){if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('📋 已复制')}).catch(function(){fallback(t)})}else{fallback(t)}}
+function delRec(id){setR(getR().filter(function(r){return r.id!==id}));renderHist();renderStats();updBadge();toast('已删除')}
+function confirmClear(){
+  var rs=getR();
+  if(!rs.length){toast('暂无记录');return}
+  showModal('确认清空','确定要清空全部 '+rs.length+' 条记录吗？',function(){localStorage.removeItem(SK.r);localStorage.removeItem(SK.d);renderHist();renderStats();renderDef();updBadge();closeModal();toast('已清空')});
+}
+
+/* ============ STATS ============ */
+function renderStats(){
+  var rs=getR(),total=rs.length;
+  document.getElementById('stTotal').textContent=total;
+  var m=new Date(),mk=m.getFullYear()+'-'+(m.getMonth()+1+'').padStart(2,'0');
+  document.getElementById('stMonth').textContent=rs.filter(function(r){return r.dt.startsWith(mk)}).length;
+  var ti=0,pi=0;rs.forEach(function(r){r.items.forEach(function(it){ti++;if(it.r==='合格')pi++})});
+  document.getElementById('stRate').textContent=(ti>0?Math.round(pi/ti*100):100)+'%';
+  document.getElementById('stDef').textContent=getD().filter(function(d){return d.st==='pending'}).length;
+  // Charts - safe even if Chart.js not loaded
+  try{if(!window.CLAW_CHART_OK||typeof Chart==='undefined')throw 0;drawCharts(rs)}catch(e){}
+}
+function drawCharts(rs){
+  try{
+    // Monthly chart
+    var ms={},n=new Date();
+    for(var i=5;i>=0;i--){var d=new Date(n.getFullYear(),n.getMonth()-i,1);ms[d.getFullYear()+'-'+(d.getMonth()+1+'').padStart(2,'0')]=0}
+    rs.forEach(function(r){var k=r.dt.substring(0,7);if(k in ms)ms[k]++});
+    var la=Object.keys(ms).map(function(k){return k.substring(5)+'月'}),da=Object.values(ms);
+    if(ch1)ch1.destroy();
+    ch1=new Chart(document.getElementById('chMonth').getContext('2d'),{type:'bar',data:{labels:la,datasets:[{label:'检查次数',data:da,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
+    
+    // Defect chart
+    var dc={};rs.forEach(function(r){r.items.forEach(function(it){if(it.r==='不合格')dc[it.n]=(dc[it.n]||0)+1})});
+    var sd=Object.entries(dc).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
+    if(ch2)ch2.destroy();
+    ch2=new Chart(document.getElementById('chDef').getContext('2d'),{type:'bar',data:{labels:sd.map(function(x){return x[0].length>10?x[0].substring(0,10)+'…':x[0]}),datasets:[{label:'次数',data:sd.map(function(x){return x[1]}),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}}},y:{ticks:{font:{size:10}}}}}});
+    
+    // Type chart
+    var tc={};rs.forEach(function(r){tc[r.type]=(tc[r.type]||0)+1});
+    var te=Object.entries(tc);
+    if(ch3)ch3.destroy();
+    ch3=new Chart(document.getElementById('chType').getContext('2d'),{type:'doughnut',data:{labels:te.map(function(x){return x[0]}),datasets:[{data:te.map(function(x){return x[1]}),backgroundColor:['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'].slice(0,te.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}});
+  }catch(e){}
+}
+
+/* ============ DEFECTS ============ */
+var defF='all';
+function renderDef(){
+  var el=document.getElementById('defList');
+  var ds=getD();
+  if(defF!=='all')ds=ds.filter(function(d){return d.st===defF});
+  if(!ds.length){var msg={'all':'暂无隐患','pending':'暂无待整改','reviewing':'暂无复查中','fixed':'暂无已整改'}[defF]||'暂无';el.innerHTML='<div class="es"><div class="ei">✅</div><div class="et">'+msg+'</div></div>';return}
+  el.innerHTML='';
+  ds.forEach(function(d){
+    var dv=document.createElement('div');dv.className='dc';
+    if(d.st==='fixed')dv.classList.add('fx');if(d.st==='reviewing')dv.classList.add('rv');
+    var sm={'pending':'⏳ 待整改','reviewing':'🔍 复查中','fixed':'✅ 已整改'};
+    var sc={'pending':'pd','reviewing':'rv','fixed':'fd'};
+    dv.innerHTML='<div class="dc-h"><span class="dc-t">'+d.item+'</span><span class="dc-st '+(sc[d.st]||'pd')+'">'+(sm[d.st]||d.st)+'</span></div>'+
+      '<div class="dc-m">📅 '+d.dt+' · 📍 '+d.loc+'</div>'+
+      (d.fix?'<div style="font-size:13px;color:#555;margin-top:4px;padding:6px 8px;background:#f5f5f5;border-radius:6px">整改备注：'+d.fix+'</div>':'')+
+      '<div class="dc-a">'+
+      (d.st==='pending'?'<button class="btn btn-s bs" onclick="updDef('+d.id+',\'reviewing\')">🔍 复查中</button><button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 已整改</button>':'')+
+      (d.st==='reviewing'?'<button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 完成</button><button class="btn btn-s bs" onclick="updDef('+d.id+',\'pending\')">⏳ 退回</button>':'')+
+      (d.st==='fixed'?'<span style="font-size:12px;color:#999">已整改</span>':'')+
+      '</div>';
+    el.appendChild(dv);
+  });
+}
+function filtDef(f){defF=f;document.querySelectorAll('#defFilt span').forEach(function(s){s.className=s.textContent.includes({pending:'待整改',reviewing:'复查中',fixed:'已整改',all:'全部'}[f]||'')?'active':''});renderDef()}
+function updDef(id,st){var ds=getD(),d=ds.find(function(x){return x.id===id});if(d){d.st=st;d.updated=new Date().toISOString()}setD(ds);renderDef();updBadge();toast('✅ 已更新')}
+function fixDef(id){var n=prompt('整改说明（可选）：');updDef(id,'fixed');var ds=getD(),d=ds.find(function(x){return x.id===id});if(d&&n)d.fix=n;setD(ds)}
+function updBadge(){var n=getD().filter(function(d){return d.st==='pending'}).length;var b=document.getElementById('defBadge');if(n){b.textContent=n;b.style.display='inline'}else{b.style.display='none'}}
+
+/* ============ BACKUP ============ */
+function exportBak(){
+  var data={v:'2.1',ts:new Date().toISOString(),records:getR(),defects:getD(),config:getC()};
+  var b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气备份_'+new Date().toISOString().split('T')[0]+'.json';l.click();URL.revokeObjectURL(l.href);toast('✅ 已导出');
+}
+function importBak(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!d.records||!Array.isArray(d.records)){toast('❌ 无效文件');return}d.records&&setR(d.records);d.defects&&setD(d.defects);d.config&&setC(d.config);applyC();renderHist();renderStats();renderDef();updBadge();toast('✅ 已导入 '+d.records.length+' 条')}catch(e){toast('❌ 解析失败')}};
+  r.readAsText(f);e.target.value='';
+}
+
+/* ============ EXPORT CSV ============ */
+function exportCSV(){
+  var rs=getR();if(!rs.length){toast('暂无记录');return}
+  var csv='\uFEFF序号,检查日期,地点/用户,用户类型,检查人,检查项目,结果,项目备注,总体备注\n';
+  rs.forEach(function(r,idx){
+    var its=r.items||[];
+    if(!its.length){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","","","","'+(r.note||'')+'"\n'}
+    else{its.forEach(function(it,i){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","'+it.n+'","'+it.r+'","'+(it.note||'')+'","'+(i===0?(r.note||''):'')+'"\n'})}
+  });
+  var b=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气记录_'+new Date().toISOString().split('T')[0]+'.csv';l.click();URL.revokeObjectURL(l.href);toast('📤 已导出CSV');
+}
+
+/* ============ NAVIGATION ============ */
+function nav(pg){
+  var pages={form:'pgForm',stats:'pgStats',defects:'pgDefects',history:'pgHistory',report:'pgReport',settings:'pgSettings'};
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  var el=document.getElementById(pages[pg]);if(el)el.classList.add('active');
+  document.querySelectorAll('.nitem').forEach(function(n,i){n.classList.toggle('active',['form','stats','defects','history','settings'][i]===pg)});
+  if(pg==='stats')renderStats();if(pg==='defects')renderDef();if(pg==='history')renderHist();
+}
+
+/* ============ FEEDBACK ============ */
+function submitFb(){
+  var t=document.getElementById('fbInp').value.trim(),c=document.getElementById('fbCtc').value.trim();
+  if(!t){toast('请填写反馈');return}
+  var fb=[],k='gas_fb';
+  try{fb=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}
+  fb.unshift({id:Date.now(),text:t,ctc:c||'(未留)',dt:new Date().toLocaleString('zh-CN'),ver:'v2.1'});
+  localStorage.setItem(k,JSON.stringify(fb));
+  document.getElementById('fbInp').value='';document.getElementById('fbCtc').value='';
+  toast('✅ 感谢反馈！');
+}
+
+/* ============ MODAL ============ */
+function showModal(t,b,onCb){
+  document.getElementById('modalTitle').textContent=t;
+  document.getElementById('modalBody').textContent=b;
+  document.getElementById('modal').classList.add('show');
+  document.getElementById('modalBtn').onclick=onCb;
+}
+function closeModal(){document.getElementById('modal').classList.remove('show')}
+document.getElementById('modal').onclick=function(e){if(e.target===this)closeModal()};
+
+/* ============ TOAST ============ */
+function toast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}
+
+/* ============ UPDATE CHECK ============ */
+var VER='v2.1',UP_URL='https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html';
+function checkUpdate(){
+  toast('⏳ 检查中…');
+  fetch(UP_URL).then(function(r){return r.text()}).then(function(h){
+    var m=h.match(/VER='([^']+)'/);
+    if(m&&m[1]!==VER){showModal('发现新版本','当前：'+VER+'\n最新：'+m[1]+'\n\n是否去GitHub下载？',function(){window.open('https://github.com/hlbfox/gas-inspection-platform','_blank');closeModal()})}
+    else{toast('✅ 已是最新版')}
+  }).catch(function(){toast('❌ 检查失败')});
+}
+
+/* ============ INIT ============ */
+document.addEventListener('DOMContentLoaded',init);
 </script>
 </body>
 </html>
