@@ -785,6 +785,10 @@ function renderStats(){
   renderChartUserTypes(records);
 }
 function renderChartMonthly(records){
+  if(!window.CHART_LOADED||typeof Chart==='undefined'){
+    document.getElementById('chartMonthly').parentNode.innerHTML='<div style="padding:30px;text-align:center;color:#999">📊 图表库加载失败<br><span style="font-size:12px">统计图表不可用，请检查网络后刷新</span></div>';
+    return;
+  }
   const months={};
   const now=new Date();
   for(let i=5;i>=0;i--){
@@ -792,39 +796,31 @@ function renderChartMonthly(records){
     const key=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
     months[key]=0;
   }
-  records.forEach(r=>{
-    const key=r.date.substring(0,7);
-    if(months[key]!==undefined)months[key]++;
-  });
+  records.forEach(r=>{const key=r.date.substring(0,7);if(months[key]!==undefined)months[key]++});
   const labels=Object.keys(months).map(k=>k.substring(5)+'月');
   const data=Object.values(months);
-  if(chartMonthly){chartMonthly.destroy()}
+  try{if(chartMonthly)chartMonthly.destroy()}catch(e){}
   const ctx=document.getElementById('chartMonthly').getContext('2d');
-  chartMonthly=new Chart(ctx,{
-    type:'bar',
-    data:{labels,datasets:[{label:'检查次数',data,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:'#f0f0f0'}},
-              x:{ticks:{font:{size:11}}}}}
-  });
+  try{
+    chartMonthly=new Chart(ctx,{type:'bar',
+      data:{labels,datasets:[{label:'检查次数',data,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}},grid:{color:'#f0f0f0'}},x:{ticks:{font:{size:11}}}}}});
+  }catch(e){console.warn('图表渲染失败:',e)}
 }
 function renderChartDefects(records){
+  if(!window.CHART_LOADED||typeof Chart==='undefined')return;
   const defectCount={};
-  records.forEach(r=>{r.items.forEach(i=>{
-    if(i.result==='不合格'){
-      defectCount[i.name]=(defectCount[i.name]||0)+1;
-    }
-  })});
+  records.forEach(r=>{r.items.forEach(i=>{if(i.result==='不合格'){defectCount[i.name]=(defectCount[i.name]||0)+1}})});
   const sorted=Object.entries(defectCount).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  if(chartDefects){chartDefects.destroy()}
-  const ctx=document.getElementById('chartDefects').getContext('2d');
-  chartDefects=new Chart(ctx,{
-    type:'bar',
-    data:{labels:sorted.map(s=>s[0].length>10?s[0].substring(0,10)+'…':s[0]),datasets:[{label:'次数',data:sorted.map(s=>s[1]),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},
-    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f0f0f0'}},
-              y:{ticks:{font:{size:10}}}}}
-  });
+  try{if(chartDefects)chartDefects.destroy()}catch(e){}
+  try{
+    const ctx=document.getElementById('chartDefects').getContext('2d');
+    chartDefects=new Chart(ctx,{type:'bar',
+      data:{labels:sorted.map(s=>s[0].length>10?s[0].substring(0,10)+'…':s[0]),datasets:[{label:'次数',data:sorted.map(s=>s[1]),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f0f0f0'}},y:{ticks:{font:{size:10}}}}}});
+  }catch(e){}
 }
 function renderChartUserTypes(records){
   const typeCount={};
