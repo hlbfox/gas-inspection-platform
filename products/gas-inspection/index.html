@@ -6,12 +6,10 @@
 <meta name="format-detection" content="telephone=no">
 <title>燃气监管工作台</title>
 <script>
-// 异步加载Chart.js，加载失败不影响其他功能
 window.CLAW_CHART_OK=false;
 (function(){var d=document,s=d.createElement('script');
 s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
-s.onload=function(){CLAW_CHART_OK=true};
-s.onerror=function(){};
+s.onload=function(){window.CLAW_CHART_OK=true};s.onerror=function(){};
 d.head.appendChild(s)})();
 </script>
 <style>
@@ -55,8 +53,10 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 .bo{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:10px;border:1.5px dashed var(--blue);border-radius:8px;background:transparent;color:var(--blue);font-size:14px;cursor:pointer}
 .btn{display:block;width:100%;padding:14px;border:none;border-radius:8px;font-size:17px;font-weight:600;cursor:pointer;text-align:center;letter-spacing:1px;transition:all .1s}
 .btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 .btn-p{background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff}
 .btn-s{background:var(--blue-l);color:var(--blue)}
+.btn-g{background:linear-gradient(135deg,#f9a825,#f57f17);color:#fff}
 .btn-d{background:var(--red-b);color:var(--red)}
 .bg{display:flex;gap:10px}.bg .btn{flex:1}
 .bs{padding:10px 14px;font-size:14px;width:auto;letter-spacing:0}
@@ -133,7 +133,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 <div class="header">
   <div class="header-top">
     <h1 id="instName" onclick="editInstName()">🏢 燃气监管工作台</h1>
-    <span class="badge" id="verBadge" onclick="checkUpdate()">v2.1</span>
+    <span class="badge" id="verBadge" onclick="checkUpdate()">v2.2</span>
   </div>
   <div class="sub" id="instSub">燃气检查记录 · 隐患跟踪 · 数据统计</div>
 </div>
@@ -155,7 +155,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="fg"><label>✍️ 检查人</label><input type="text" id="fi" placeholder="请输入检查人姓名"></div>
     <div class="fg"><label>📝 总体备注</label><textarea id="fnote" placeholder="如有其他需要说明的情况…" rows="3"></textarea></div>
   </div>
-  <button class="btn btn-p" onclick="submitForm()">📄 生成报告并保存</button>
+  <button class="btn btn-p" id="submitBtn" onclick="submitForm()">📄 生成报告并保存</button>
 </div>
 
 <!-- PAGE: REPORT -->
@@ -232,7 +232,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   <div class="card">
     <div class="ctitle">ℹ️ 关于</div>
     <div style="font-size:13px;color:#888;line-height:1.8;text-align:center;padding:8px 0">
-      燃气监管工作台 v2.1<br>由一线燃气监管从业者打造<br>数据仅保存在本地浏览器中<br>完全免费 · 欢迎同行使用交流</div>
+      燃气监管工作台 v2.2 基础版<br>由一线燃气监管从业者打造<br>数据仅保存在本地浏览器中<br>完全免费 · 欢迎同行使用交流<br><br><a href="pro.html" style="color:var(--blue);text-decoration:none;font-weight:600">✨ 了解专业版高级功能</a></div>
   </div>
 </div>
 
@@ -262,296 +262,160 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script>
 /* ============ CONFIG ============ */
-var SK = {r:'gas_r',d:'gas_d',c:'gas_c'};
-var DI = ['燃气管线是否完好','燃气表是否正常','灶具点火是否正常','热水器排烟是否通畅','报警器是否正常工作','阀门启闭是否灵活','管道有无锈蚀泄漏','通风条件是否达标'];
-var SUBMITTING = false;
+var VER='v2.2',UP_URL='https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html';
+var SK={r:'gas_r',d:'gas_d',c:'gas_c'};
+var DI=['燃气管线是否完好','燃气表是否正常','灶具点火是否正常','热水器排烟是否通畅','报警器是否正常工作','阀门启闭是否灵活','管道有无锈蚀泄漏','通风条件是否达标'];
+var SUBMITTING=false;
 var ch1=null,ch2=null,ch3=null;
+var _uidCounter=0;
+function _nextUid(){_uidCounter++;return 'ci_'+Date.now().toString(36)+'_'+_uidCounter}
 
-function getC(){try{return JSON.parse(localStorage.getItem(SK.c)||'{}')}catch(e){return{}}}
-function setC(c){localStorage.setItem(SK.c,JSON.stringify(c));applyC()}
-function applyC(){
-  var c=getC(),n=c.n||'燃气监管工作台';
-  document.getElementById('instName').innerHTML='🏢 '+n;
-  document.getElementById('rptHead').textContent='📄 '+n+'安全检查报告';
-  var di=c.i||'';
-  if(di&&!document.getElementById('fi').value)document.getElementById('fi').value=di;
-}
-function setName(){var c=getC(),n=prompt('机构名称：',c.n||'燃气监管所');if(n&&n.trim()){c.n=n.trim();setC(c);toast('✅ 已更新')}}
-function setInspector(){var c=getC(),n=prompt('默认检查人：',c.i||'');c.i=n||'';setC(c);toast(n?'✅ 已设置':'已清除')}
+function safeGet(k,def){try{var v=localStorage.getItem(k);return v?JSON.parse(v):def}catch(e){return def}}
+function safeSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){toast('❌ 存储失败，空间可能已满')}}
 
-function getR(){try{return JSON.parse(localStorage.getItem(SK.r)||'[]')}catch(e){return[]}}
-function setR(r){localStorage.setItem(SK.r,JSON.stringify(r))}
-function getD(){try{return JSON.parse(localStorage.getItem(SK.d)||'[]')}catch(e){return[]}}
-function setD(d){localStorage.setItem(SK.d,JSON.stringify(d));updBadge()}
+/* ============ CONFIG HELPERS ============ */
+function getC(){return safeGet(SK.c,{n:'',i:''})}
+function setC(c){safeSet(SK.c,c);applyC()}
+function applyC(){try{var c=getC(),n=c.n||'燃气监管工作台';document.getElementById('instName').innerHTML='🏢 '+n;document.getElementById('rptHead').textContent='📄 '+n+'安全检查报告';var di=c.i||'';var fi=document.getElementById('fi');if(fi&&di&&!fi.value)fi.value=di}catch(e){}}
+function editInstName(){setName()}
+function setName(){try{var c=getC(),n=prompt('机构名称：',c.n||'燃气监管所');if(n&&n.trim()){c.n=n.trim();setC(c);toast('✅ 已更新')}}catch(e){toast('操作失败')}}
+function setInspector(){try{var c=getC(),n=prompt('默认检查人：',c.i||'');c.i=n||'';setC(c);toast(n?'✅ 已设置':'已清除')}catch(e){toast('操作失败')}}
+
+function getR(){return safeGet(SK.r,[])}
+function setR(r){safeSet(SK.r,r)}
+function getD(){return safeGet(SK.d,[])}
+function setD(d){safeSet(SK.d,d);updBadge()}
 
 /* ============ FORM ============ */
-function init(){
-  document.getElementById('fd').value=new Date().toISOString().split('T')[0];
-  applyC();renderItems();renderHist();renderStats();renderDef();updBadge();
-}
-function renderItems(){
-  var el=document.getElementById('ciList');el.innerHTML='';
-  DI.forEach(function(n,i){el.appendChild(mkItem(n,false,i))});
-}
-function mkItem(n,isC,idx){
-  var d=document.createElement('div');d.className='ci';
-  d.innerHTML='<div class="ci-h"><span class="ci-n">'+n+'</span>'+(isC?'<button class="ci-d" onclick="this.parentNode.parentNode.remove()">✕</button>':'')+'</div>'+
-    '<div class="cr"><label class="p"><input type="radio" name="r'+idx+'" value="合格" checked><span>合格</span></label>'+
-    '<label class="f"><input type="radio" name="r'+idx+'" value="不合格"><span>不合格</span></label>'+
-    '<label class="n"><input type="radio" name="r'+idx+'" value="不适用"><span>不适用</span></label></div>'+
-    '<input class="nt" placeholder="备注（可选）" type="text">';
-  return d;
-}
-function addItem(){
-  var n=prompt('检查项目名称：');
-  if(!n||!n.trim())return;
-  document.getElementById('ciList').appendChild(mkItem(n.trim(),true,document.getElementById('ciList').children.length));
-  toast('已添加：'+n.trim());
-}
-function getItems(){
-  var items=[];
-  document.querySelectorAll('.ci').forEach(function(el){
-    var name=el.querySelector('.ci-n').textContent;
-    var sel=el.querySelector('input[type="radio"]:checked');
-    var val=sel?sel.value:'合格';
-    var note=el.querySelector('.nt').value.trim();
-    items.push({n:name,r:val,note:note});
-  });
-  return items;
-}
+function init(){try{document.getElementById('fd').value=new Date().toISOString().split('T')[0];applyC();renderItems();renderHist();try{renderStats()}catch(e){}renderDef();updBadge()}catch(e){}}
+
+function renderItems(){try{var el=document.getElementById('ciList');el.innerHTML='';DI.forEach(function(n){el.appendChild(mkItem(n,false))})}catch(e){}}
+
+function mkItem(n,isC){try{var uid=_nextUid();var d=document.createElement('div');d.className='ci';d.dataset.uid=uid;
+d.innerHTML='<div class="ci-h"><span class="ci-n">'+escHtml(n)+'</span>'+(isC?'<button class="ci-d" onclick="this.closest(\'.ci\').remove()">✕</button>':'')+'</div>'+
+'<div class="cr"><label class="p"><input type="radio" name="'+uid+'" value="合格" checked><span>合格</span></label>'+
+'<label class="f"><input type="radio" name="'+uid+'" value="不合格"><span>不合格</span></label>'+
+'<label class="n"><input type="radio" name="'+uid+'" value="不适用"><span>不适用</span></label></div>'+
+'<input class="nt" placeholder="备注（可选）" type="text">';return d}catch(e){var d=document.createElement('div');d.className='ci';d.textContent='项加载失败';return d}}
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function addItem(){try{var n=prompt('检查项目名称：');if(!n||!n.trim())return;var el=document.getElementById('ciList');el.appendChild(mkItem(n.trim(),true));toast('已添加：'+n.trim())}catch(e){toast('添加失败')}}
+
+function getItems(){try{var items=[];document.querySelectorAll('.ci').forEach(function(el){try{var name=el.querySelector('.ci-n').textContent;var sel=el.querySelector('input[type="radio"]:checked');var val=sel?sel.value:'合格';var note=el.querySelector('.nt').value.trim();items.push({n:name,r:val,note:note})}catch(e){}});return items}catch(e){return[]}}
 
 /* ============ SUBMIT ============ */
 function submitForm(){
-  if(SUBMITTING){toast('⏳ 正在提交…');return}
-  SUBMITTING=true;
-  try {
+  if(SUBMITTING)return;
+  try{
     var loc=document.getElementById('fl').value.trim();
     var type=document.getElementById('ftype').value;
     var ins=document.getElementById('fi').value.trim();
     var dt=document.getElementById('fd').value;
     var note=document.getElementById('fnote').value.trim();
-    if(!loc){toast('请输入地点/用户');SUBMITTING=false;return}
-    if(!type){toast('请选择用户类型');SUBMITTING=false;return}
-    if(!ins){toast('请输入检查人姓名');SUBMITTING=false;return}
-    
+    if(!loc){toast('请输入地点/用户');return}
+    if(!type){toast('请选择用户类型');return}
+    if(!ins){toast('请输入检查人姓名');return}
     var items=getItems();
-    var rpt=buildRpt(dt,loc,type,items,note,ins);
-    document.getElementById('rptContent').textContent=rpt;
-    
-    var rec={id:Date.now(),dt:dt,loc:loc,type:type,items:items,note:note,ins:ins,rpt:rpt,ts:new Date().toISOString()};
-    var recs=getR();recs.unshift(rec);setR(recs);
-    
-    // Add defects
-    var ds=getD();
-    items.forEach(function(it){
-      if(it.r==='不合格'){
-        ds.unshift({id:Date.now()+Math.random(),rid:rec.id,dt:dt,loc:loc,item:it.n,note:it.note||'',st:'pending',fix:'',ts:rec.ts});
-      }
-    });
-    setD(ds);
-    
-    renderHist();
-    try{renderStats()}catch(e){}
-    toast('✅ 报告已保存');
-    nav('report');
-  } catch(e){toast('❌ 提交出错，请刷新重试')}
-  SUBMITTING=false;
+    SUBMITTING=true;
+    var btn=document.getElementById('submitBtn');if(btn){btn.disabled=true;btn.textContent='⏳ 生成中…'}
+    setTimeout(function(){try{
+      var rpt=buildRpt(dt,loc,type,items,note,ins);
+      document.getElementById('rptContent').textContent=rpt;
+      var rec={id:Date.now(),dt:dt,loc:loc,type:type,items:items,note:note,ins:ins,rpt:rpt,ts:new Date().toISOString()};
+      var recs=getR();recs.unshift(rec);setR(recs);
+      var ds=getD();items.forEach(function(it){if(it.r==='不合格'){ds.unshift({id:Date.now()+Math.random(),rid:rec.id,dt:dt,loc:loc,item:it.n,note:it.note||'',st:'pending',fix:'',ts:rec.ts})}});setD(ds);
+      renderHist();try{renderStats()}catch(e){}
+      toast('✅ 报告已保存');nav('report');
+    }catch(e){toast('❌ 提交出错')}finally{SUBMITTING=false;var b=document.getElementById('submitBtn');if(b){b.disabled=false;b.textContent='📄 生成报告并保存'}}},50);
+  }catch(e){SUBMITTING=false;toast('❌ 出错');var b=document.getElementById('submitBtn');if(b){b.disabled=false;b.textContent='📄 生成报告并保存'}}
 }
 
 function buildRpt(dt,loc,type,items,note,ins){
-  var c=getC(),inst=c.n||'燃气监管所';
-  var t='';
-  items.forEach(function(it,i){
-    var s={'合格':'✓ 合格','不合格':'✗ 不合格','不适用':'— 不适用'}[it.r]||it.r;
-    var n=it.note?'【备注】'+it.note:'';
-    t+='  '+(i+1)+'. '+it.n+'  ——  '+s+'  '+n+'\n';
-  });
-  var fail=items.some(function(it){return it.r==='不合格'});
-  return '═══════════════════════════════\n          '+inst+'\n═══════════════════════════════\n\n检查单位：'+inst+'\n检查日期：'+dt+'\n检查地点：'+loc+'\n用户类型：'+type+'\n检查人员：'+ins+'\n\n───────────────────────────────\n一、检查项目及结果\n───────────────────────────────\n'+t+'\n───────────────────────────────\n二、总体情况\n───────────────────────────────\n'+(note||'（无）')+'\n\n───────────────────────────────\n三、检查结论\n───────────────────────────────\n'+(fail?'⚠ 存在不合格项，需整改。':'✓ 全部检查项目合格。')+'\n\n───────────────────────────────\n\n检查人（签字）：___________    日期：___________\n\n'+inst+'（盖章）\n\n═══════════════════════════════\n本报告由燃气监管工作台自动生成\n生成时间：'+new Date().toLocaleString('zh-CN');
+  try{var c=getC(),inst=c.n||'燃气监管所';var t='';items.forEach(function(it,i){var s={'合格':'✓ 合格','不合格':'✗ 不合格','不适用':'— 不适用'}[it.r]||it.r;var n=it.note?' 【备注】'+it.note:'';t+='  '+(i+1)+'. '+it.n+'  ——  '+s+n+'\n'});var fail=items.some(function(it){return it.r==='不合格'});return '═══════════════════════════════\n          '+inst+'\n═══════════════════════════════\n\n检查单位：'+inst+'\n检查日期：'+dt+'\n检查地点：'+loc+'\n用户类型：'+type+'\n检查人员：'+ins+'\n\n───────────────────────────────\n一、检查项目及结果\n───────────────────────────────\n'+t+'\n───────────────────────────────\n二、总体情况\n───────────────────────────────\n'+(note||'（无）')+'\n\n───────────────────────────────\n三、检查结论\n───────────────────────────────\n'+(fail?'⚠ 存在不合格项，需整改。':'✓ 全部检查项目合格。')+'\n\n───────────────────────────────\n\n检查人（签字）：___________    日期：___________\n\n'+inst+'（盖章）\n\n═══════════════════════════════\n本报告由燃气监管工作台自动生成\n生成时间：'+new Date().toLocaleString('zh-CN')}catch(e){return '报告生成失败'}
 }
 
 /* ============ REPORT ============ */
-function copyRpt(){
-  var t=document.getElementById('rptContent').textContent;
-  if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('📋 已复制')}).catch(function(){fallback(t)})}
-  else{fallback(t)}
-}
-function fallback(t){var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('📋 已复制')}catch(e){toast('复制失败')}document.body.removeChild(ta)}
+function copyRpt(){try{var t=document.getElementById('rptContent').textContent;if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('📋 已复制')}).catch(function(){fallback(t)})}else{fallback(t)}}catch(e){toast('复制失败')}}
+function fallback(t){try{var ta=document.createElement('textarea');ta.value=t;ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);toast('📋 已复制')}catch(e){toast('复制失败')}}
 function goBack(){nav('form')}
 
 /* ============ HISTORY ============ */
-function renderHist(){
-  var el=document.getElementById('histList');
-  var kw=document.getElementById('srchInp').value.trim().toLowerCase();
-  var rs=getR();
-  if(kw)rs=rs.filter(function(r){return r.loc.toLowerCase().includes(kw)||r.type.toLowerCase().includes(kw)});
-  if(!rs.length){el.innerHTML='<div class="es"><div class="ei">📂</div><div class="et">暂无检查记录</div></div>';return}
-  el.innerHTML='';
-  rs.forEach(function(r){
-    var d=document.createElement('div');d.className='ri';
-    d.innerHTML='<div class="ri-h"><span class="ri-d">📅 '+r.dt+'</span><span class="ri-t">'+r.type+'</span></div>'+
-      '<div class="ri-l">'+r.loc+'</div><div class="ri-i">检查人：'+r.ins+'</div>'+
-      '<div class="rd" id="det_'+r.id+'">'+
-      '<div class="rdr"><span class="rdl">日期：</span><span class="rdv">'+r.dt+'</span></div>'+
-      '<div class="rdr"><span class="rdl">地点：</span><span class="rdv">'+r.loc+'</span></div>'+
-      '<div class="rdr"><span class="rdl">用户：</span><span class="rdv">'+r.type+'</span></div>'+
-      '<div class="rdr"><span class="rdl">检查人：</span><span class="rdv">'+r.ins+'</span></div>'+
-      (r.note?'<div class="rdr"><span class="rdl">备注：</span><span class="rdv">'+r.note+'</span></div>':'')+
-      '<div class="rdi">'+r.items.map(function(it){var c='p';if(it.r==='不合格')c='f';else if(it.r==='不适用')c='n';return '<div class="rdi2"><span class="rds '+c+'">'+it.r+'</span>'+it.n+(it.note?' '+it.note:'')+'</div>'}).join('')+'</div>'+
-      '<div style="margin-top:10px;display:flex;gap:6px">'+
-      '<button class="btn btn-s bs" onclick="event.stopPropagation();copyHist('+r.id+')">📋 复制</button>'+
-      '<button class="btn btn-d bs" onclick="event.stopPropagation();delRec('+r.id+')">🗑 删除</button></div></div>';
-    d.onclick=function(){var e=document.getElementById('det_'+r.id);if(e)e.style.display=(e.style.display==='none'||e.style.display==='')?'block':'none'};
-    el.appendChild(d);
-  });
-}
-function copyHist(id){var r=getR().find(function(x){return x.id===id});if(r)copyRptText(r.rpt)}
+function renderHist(){try{var el=document.getElementById('histList');var kw=document.getElementById('srchInp').value.trim().toLowerCase();var rs=getR();if(kw)rs=rs.filter(function(r){return(r.loc||'').toLowerCase().includes(kw)||(r.type||'').toLowerCase().includes(kw)});if(!rs.length){el.innerHTML='<div class="es"><div class="ei">📂</div><div class="et">暂无检查记录</div></div>';return}el.innerHTML='';rs.forEach(function(r){try{var d=document.createElement('div');d.className='ri';d.innerHTML='<div class="ri-h"><span class="ri-d">📅 '+escHtml(r.dt)+'</span><span class="ri-t">'+escHtml(r.type)+'</span></div><div class="ri-l">'+escHtml(r.loc)+'</div><div class="ri-i">检查人：'+escHtml(r.ins)+'</div><div class="rd" id="det_'+r.id+'">'+
+'<div class="rdr"><span class="rdl">日期：</span><span class="rdv">'+escHtml(r.dt)+'</span></div>'+
+'<div class="rdr"><span class="rdl">地点：</span><span class="rdv">'+escHtml(r.loc)+'</span></div>'+
+'<div class="rdr"><span class="rdl">用户：</span><span class="rdv">'+escHtml(r.type)+'</span></div>'+
+'<div class="rdr"><span class="rdl">检查人：</span><span class="rdv">'+escHtml(r.ins)+'</span></div>'+
+(r.note?'<div class="rdr"><span class="rdl">备注：</span><span class="rdv">'+escHtml(r.note)+'</span></div>':'')+
+'<div class="rdi">'+(r.items||[]).map(function(it){var c='p';if(it.r==='不合格')c='f';else if(it.r==='不适用')c='n';return '<div class="rdi2"><span class="rds '+c+'">'+escHtml(it.r)+'</span>'+escHtml(it.n)+(it.note?' '+escHtml(it.note):'')+'</div>'}).join('')+'</div>'+
+'<div style="margin-top:10px;display:flex;gap:6px"><button class="btn btn-s bs" onclick="event.stopPropagation();copyHistRpt('+r.id+')">📋 复制</button><button class="btn btn-d bs" onclick="event.stopPropagation();delRec('+r.id+')">🗑 删除</button></div></div>';
+d.onclick=function(){var e=document.getElementById('det_'+r.id);if(e)e.style.display=(e.style.display==='none'||e.style.display==='')?'block':'none'};el.appendChild(d)}catch(e){}})}catch(e){}}
+
+function copyHistRpt(id){try{var r=getR().find(function(x){return x.id===id});if(r)copyRptText(r.rpt)}catch(e){toast('复制失败')}}
 function copyRptText(t){if(navigator.clipboard){navigator.clipboard.writeText(t).then(function(){toast('📋 已复制')}).catch(function(){fallback(t)})}else{fallback(t)}}
-function delRec(id){setR(getR().filter(function(r){return r.id!==id}));renderHist();renderStats();updBadge();toast('已删除')}
-function confirmClear(){
-  var rs=getR();
-  if(!rs.length){toast('暂无记录');return}
-  showModal('确认清空','确定要清空全部 '+rs.length+' 条记录吗？',function(){localStorage.removeItem(SK.r);localStorage.removeItem(SK.d);renderHist();renderStats();renderDef();updBadge();closeModal();toast('已清空')});
-}
+function delRec(id){try{setR(getR().filter(function(r){return r.id!==id}));renderHist();try{renderStats()}catch(e){}updBadge();toast('已删除')}catch(e){toast('删除失败')}}
+function confirmClear(){try{var rs=getR();if(!rs.length){toast('暂无记录');return}showModal('确认清空','确定要清空全部 '+rs.length+' 条记录吗？',function(){localStorage.removeItem(SK.r);localStorage.removeItem(SK.d);renderHist();try{renderStats()}catch(e){}renderDef();updBadge();closeModal();toast('已清空')})}catch(e){}}
 
 /* ============ STATS ============ */
-function renderStats(){
-  var rs=getR(),total=rs.length;
-  document.getElementById('stTotal').textContent=total;
-  var m=new Date(),mk=m.getFullYear()+'-'+(m.getMonth()+1+'').padStart(2,'0');
-  document.getElementById('stMonth').textContent=rs.filter(function(r){return r.dt.startsWith(mk)}).length;
-  var ti=0,pi=0;rs.forEach(function(r){r.items.forEach(function(it){ti++;if(it.r==='合格')pi++})});
-  document.getElementById('stRate').textContent=(ti>0?Math.round(pi/ti*100):100)+'%';
-  document.getElementById('stDef').textContent=getD().filter(function(d){return d.st==='pending'}).length;
-  // Charts - safe even if Chart.js not loaded
-  try{if(!window.CLAW_CHART_OK||typeof Chart==='undefined')throw 0;drawCharts(rs)}catch(e){}
-}
-function drawCharts(rs){
-  try{
-    // Monthly chart
-    var ms={},n=new Date();
-    for(var i=5;i>=0;i--){var d=new Date(n.getFullYear(),n.getMonth()-i,1);ms[d.getFullYear()+'-'+(d.getMonth()+1+'').padStart(2,'0')]=0}
-    rs.forEach(function(r){var k=r.dt.substring(0,7);if(k in ms)ms[k]++});
-    var la=Object.keys(ms).map(function(k){return k.substring(5)+'月'}),da=Object.values(ms);
-    if(ch1)ch1.destroy();
-    ch1=new Chart(document.getElementById('chMonth').getContext('2d'),{type:'bar',data:{labels:la,datasets:[{label:'检查次数',data:da,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}}},x:{ticks:{font:{size:11}}}}}});
-    
-    // Defect chart
-    var dc={};rs.forEach(function(r){r.items.forEach(function(it){if(it.r==='不合格')dc[it.n]=(dc[it.n]||0)+1})});
-    var sd=Object.entries(dc).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
-    if(ch2)ch2.destroy();
-    ch2=new Chart(document.getElementById('chDef').getContext('2d'),{type:'bar',data:{labels:sd.map(function(x){return x[0].length>10?x[0].substring(0,10)+'…':x[0]}),datasets:[{label:'次数',data:sd.map(function(x){return x[1]}),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}}},y:{ticks:{font:{size:10}}}}}});
-    
-    // Type chart
-    var tc={};rs.forEach(function(r){tc[r.type]=(tc[r.type]||0)+1});
-    var te=Object.entries(tc);
-    if(ch3)ch3.destroy();
-    ch3=new Chart(document.getElementById('chType').getContext('2d'),{type:'doughnut',data:{labels:te.map(function(x){return x[0]}),datasets:[{data:te.map(function(x){return x[1]}),backgroundColor:['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'].slice(0,te.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}});
-  }catch(e){}
-}
+function renderStats(){try{var rs=getR(),total=rs.length;document.getElementById('stTotal').textContent=total;var m=new Date(),mk=m.getFullYear()+'-'+(m.getMonth()+1+'').padStart(2,'0');document.getElementById('stMonth').textContent=rs.filter(function(r){return r.dt&&r.dt.startsWith(mk)}).length;var ti=0,pi=0;rs.forEach(function(r){(r.items||[]).forEach(function(it){ti++;if(it.r==='合格')pi++})});document.getElementById('stRate').textContent=(ti>0?Math.round(pi/ti*100):100)+'%';document.getElementById('stDef').textContent=getD().filter(function(d){return d.st==='pending'}).length;try{if(!window.CLAW_CHART_OK||typeof Chart==='undefined')throw 0;drawCharts(rs)}catch(e){}}catch(e){}}
+
+function drawCharts(rs){try{
+  // 月度趋势
+  var ms={},n=new Date();for(var i=5;i>=0;i--){var d=new Date(n.getFullYear(),n.getMonth()-i,1);ms[d.getFullYear()+'-'+(d.getMonth()+1+'').padStart(2,'0')]=0}
+  rs.forEach(function(r){var k=r.dt?r.dt.substring(0,7):'';if(k in ms)ms[k]++});
+  var la=Object.keys(ms).map(function(k){return k.substring(5)+'月'}),da=Object.values(ms);
+  try{if(ch1)ch1.destroy();ch1=new Chart(document.getElementById('chMonth').getContext('2d'),{type:'bar',data:{labels:la,datasets:[{label:'检查次数',data:da,backgroundColor:'rgba(26,115,232,.6)',borderColor:'#1a73e8',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:11}}},x:{ticks:{font:{size:11}}}}}})}catch(e){}
+
+  // 隐患TOP5
+  var dc={};rs.forEach(function(r){(r.items||[]).forEach(function(it){if(it.r==='不合格')dc[it.n]=(dc[it.n]||0)+1})});
+  var sd=Object.entries(dc).sort(function(a,b){return b[1]-a[1]}).slice(0,5);
+  try{if(ch2)ch2.destroy();if(sd.length){ch2=new Chart(document.getElementById('chDef').getContext('2d'),{type:'bar',data:{labels:sd.map(function(x){return x[0].length>10?x[0].substring(0,10)+'…':x[0]}),datasets:[{label:'次数',data:sd.map(function(x){return x[1]}),backgroundColor:'rgba(229,57,53,.6)',borderColor:'#e53935',borderWidth:1,borderRadius:4}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}}},y:{ticks:{font:{size:10}}}}}})}else{document.getElementById('chDef').getContext('2d').clearRect(0,0,400,200)}}catch(e){}
+
+  // 用户类型
+  var tc={};rs.forEach(function(r){tc[r.type]=(tc[r.type]||0)+1});var te=Object.entries(tc);
+  try{if(ch3)ch3.destroy();if(te.length){ch3=new Chart(document.getElementById('chType').getContext('2d'),{type:'doughnut',data:{labels:te.map(function(x){return x[0]}),datasets:[{data:te.map(function(x){return x[1]}),backgroundColor:['#1a73e8','#34a853','#f9a825','#e53935','#8e24aa','#00acc1','#ff7043','#78909c'].slice(0,te.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:10},padding:8,boxWidth:12}}}}})}else{document.getElementById('chType').getContext('2d').clearRect(0,0,400,200)}}catch(e){}
+}catch(e){}}
 
 /* ============ DEFECTS ============ */
 var defF='all';
-function renderDef(){
-  var el=document.getElementById('defList');
-  var ds=getD();
-  if(defF!=='all')ds=ds.filter(function(d){return d.st===defF});
-  if(!ds.length){var msg={'all':'暂无隐患','pending':'暂无待整改','reviewing':'暂无复查中','fixed':'暂无已整改'}[defF]||'暂无';el.innerHTML='<div class="es"><div class="ei">✅</div><div class="et">'+msg+'</div></div>';return}
-  el.innerHTML='';
-  ds.forEach(function(d){
-    var dv=document.createElement('div');dv.className='dc';
-    if(d.st==='fixed')dv.classList.add('fx');if(d.st==='reviewing')dv.classList.add('rv');
-    var sm={'pending':'⏳ 待整改','reviewing':'🔍 复查中','fixed':'✅ 已整改'};
-    var sc={'pending':'pd','reviewing':'rv','fixed':'fd'};
-    dv.innerHTML='<div class="dc-h"><span class="dc-t">'+d.item+'</span><span class="dc-st '+(sc[d.st]||'pd')+'">'+(sm[d.st]||d.st)+'</span></div>'+
-      '<div class="dc-m">📅 '+d.dt+' · 📍 '+d.loc+'</div>'+
-      (d.fix?'<div style="font-size:13px;color:#555;margin-top:4px;padding:6px 8px;background:#f5f5f5;border-radius:6px">整改备注：'+d.fix+'</div>':'')+
-      '<div class="dc-a">'+
-      (d.st==='pending'?'<button class="btn btn-s bs" onclick="updDef('+d.id+',\'reviewing\')">🔍 复查中</button><button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 已整改</button>':'')+
-      (d.st==='reviewing'?'<button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 完成</button><button class="btn btn-s bs" onclick="updDef('+d.id+',\'pending\')">⏳ 退回</button>':'')+
-      (d.st==='fixed'?'<span style="font-size:12px;color:#999">已整改</span>':'')+
-      '</div>';
-    el.appendChild(dv);
-  });
-}
-function filtDef(f){defF=f;document.querySelectorAll('#defFilt span').forEach(function(s){s.className=s.textContent.includes({pending:'待整改',reviewing:'复查中',fixed:'已整改',all:'全部'}[f]||'')?'active':''});renderDef()}
-function updDef(id,st){var ds=getD(),d=ds.find(function(x){return x.id===id});if(d){d.st=st;d.updated=new Date().toISOString()}setD(ds);renderDef();updBadge();toast('✅ 已更新')}
-function fixDef(id){var n=prompt('整改说明（可选）：');updDef(id,'fixed');var ds=getD(),d=ds.find(function(x){return x.id===id});if(d&&n)d.fix=n;setD(ds)}
-function updBadge(){var n=getD().filter(function(d){return d.st==='pending'}).length;var b=document.getElementById('defBadge');if(n){b.textContent=n;b.style.display='inline'}else{b.style.display='none'}}
+function renderDef(){try{var el=document.getElementById('defList');var ds=getD();if(defF!=='all')ds=ds.filter(function(d){return d.st===defF});if(!ds.length){var msg={'all':'暂无隐患','pending':'暂无待整改','reviewing':'暂无复查中','fixed':'暂无已整改'}[defF]||'暂无';el.innerHTML='<div class="es"><div class="ei">✅</div><div class="et">'+msg+'</div></div>';return}el.innerHTML='';ds.forEach(function(d){try{var dv=document.createElement('div');dv.className='dc';if(d.st==='fixed')dv.classList.add('fx');if(d.st==='reviewing')dv.classList.add('rv');var sm={'pending':'⏳ 待整改','reviewing':'🔍 复查中','fixed':'✅ 已整改'};var sc2={'pending':'pd','reviewing':'rv','fixed':'fd'};
+dv.innerHTML='<div class="dc-h"><span class="dc-t">'+escHtml(d.item)+'</span><span class="dc-st '+(sc2[d.st]||'pd')+'">'+(sm[d.st]||d.st)+'</span></div><div class="dc-m">📅 '+escHtml(d.dt)+' · 📍 '+escHtml(d.loc)+'</div>'+
+(d.fix?'<div style="font-size:13px;color:#555;margin-top:4px;padding:6px 8px;background:#f5f5f5;border-radius:6px">整改备注：'+escHtml(d.fix)+'</div>':'')+
+'<div class="dc-a">'+
+(d.st==='pending'?'<button class="btn btn-s bs" onclick="updDef('+d.id+',\'reviewing\')">🔍 复查中</button><button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 已整改</button>':'')+
+(d.st==='reviewing'?'<button class="btn btn-p bs" onclick="fixDef('+d.id+')">✅ 完成</button><button class="btn btn-s bs" onclick="updDef('+d.id+',\'pending\')">⏳ 退回</button>':'')+
+(d.st==='fixed'?'<span style="font-size:12px;color:#999">已整改</span>':'')+
+'</div>';el.appendChild(dv)}catch(e){}})}catch(e){}}
+function filtDef(f){defF=f;document.querySelectorAll('#defFilt span').forEach(function(s){s.className=s.textContent.includes({'pending':'待整改','reviewing':'复查中','fixed':'已整改','all':'全部'}[f]||'')?'active':''});renderDef()}
+function updDef(id,st){try{var ds=getD(),d=ds.find(function(x){return x.id===id});if(d){d.st=st;d.updated=new Date().toISOString()}setD(ds);renderDef();updBadge();toast('✅ 已更新')}catch(e){toast('操作失败')}}
+function fixDef(id){try{var n=prompt('整改说明（可选）：');if(n===null)return;var ds=getD(),d=ds.find(function(x){return x.id===id});if(d){d.st='fixed';d.fix=n||'';d.updated=new Date().toISOString()}setD(ds);renderDef();updBadge();toast('✅ 已更新')}catch(e){toast('操作失败')}}
+function updBadge(){try{var n=getD().filter(function(d){return d.st==='pending'}).length;var b=document.getElementById('defBadge');if(n){b.textContent=n>99?'99+':n;b.style.display='inline'}else{b.style.display='none'}}catch(e){}}
 
 /* ============ BACKUP ============ */
-function exportBak(){
-  var data={v:'2.1',ts:new Date().toISOString(),records:getR(),defects:getD(),config:getC()};
-  var b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
-  var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气备份_'+new Date().toISOString().split('T')[0]+'.json';l.click();URL.revokeObjectURL(l.href);toast('✅ 已导出');
-}
-function importBak(e){
-  var f=e.target.files[0];if(!f)return;
-  var r=new FileReader();
-  r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!d.records||!Array.isArray(d.records)){toast('❌ 无效文件');return}d.records&&setR(d.records);d.defects&&setD(d.defects);d.config&&setC(d.config);applyC();renderHist();renderStats();renderDef();updBadge();toast('✅ 已导入 '+d.records.length+' 条')}catch(e){toast('❌ 解析失败')}};
-  r.readAsText(f);e.target.value='';
-}
+function exportBak(){try{var data={v:VER,ts:new Date().toISOString(),records:getR(),defects:getD(),config:getC()};var b=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气备份_'+new Date().toISOString().split('T')[0]+'.json';l.click();URL.revokeObjectURL(l.href);toast('✅ 已导出')}catch(e){toast('导出失败')}}
+function importBak(e){try{var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){try{var d=JSON.parse(ev.target.result);if(!d.records||!Array.isArray(d.records)){toast('❌ 无效文件');return}if(d.records)setR(d.records);if(d.defects)setD(d.defects);if(d.config)setC(d.config);applyC();renderHist();try{renderStats()}catch(e){}renderDef();updBadge();toast('✅ 已导入 '+d.records.length+' 条')}catch(e){toast('❌ 解析失败')}};r.readAsText(f);e.target.value=''}catch(e){toast('导入失败')}}
 
 /* ============ EXPORT CSV ============ */
-function exportCSV(){
-  var rs=getR();if(!rs.length){toast('暂无记录');return}
-  var csv='\uFEFF序号,检查日期,地点/用户,用户类型,检查人,检查项目,结果,项目备注,总体备注\n';
-  rs.forEach(function(r,idx){
-    var its=r.items||[];
-    if(!its.length){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","","","","'+(r.note||'')+'"\n'}
-    else{its.forEach(function(it,i){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","'+it.n+'","'+it.r+'","'+(it.note||'')+'","'+(i===0?(r.note||''):'')+'"\n'})}
-  });
-  var b=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气记录_'+new Date().toISOString().split('T')[0]+'.csv';l.click();URL.revokeObjectURL(l.href);toast('📤 已导出CSV');
-}
+function exportCSV(){try{var rs=getR();if(!rs.length){toast('暂无记录');return}var csv='\uFEFF序号,检查日期,地点/用户,用户类型,检查人,检查项目,结果,项目备注,总体备注\n';rs.forEach(function(r,idx){var its=r.items||[];if(!its.length){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","","","","'+(r.note||'')+'"\n'}else{its.forEach(function(it,i){csv+=(idx+1)+',"'+r.dt+'","'+r.loc+'","'+r.type+'","'+r.ins+'","'+it.n+'","'+it.r+'","'+(it.note||'')+'","'+(i===0?(r.note||''):'')+'"\n'})}});var b=new Blob([csv],{type:'text/csv;charset=utf-8;'});var l=document.createElement('a');l.href=URL.createObjectURL(b);l.download='燃气记录_'+new Date().toISOString().split('T')[0]+'.csv';l.click();URL.revokeObjectURL(l.href);toast('📤 已导出CSV')}catch(e){toast('导出失败')}}
 
 /* ============ NAVIGATION ============ */
-function nav(pg){
-  var pages={form:'pgForm',stats:'pgStats',defects:'pgDefects',history:'pgHistory',report:'pgReport',settings:'pgSettings'};
-  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
-  var el=document.getElementById(pages[pg]);if(el)el.classList.add('active');
-  document.querySelectorAll('.nitem').forEach(function(n,i){n.classList.toggle('active',['form','stats','defects','history','settings'][i]===pg)});
-  if(pg==='stats')renderStats();if(pg==='defects')renderDef();if(pg==='history')renderHist();
-}
+function nav(pg){try{var pages={form:'pgForm',stats:'pgStats',defects:'pgDefects',history:'pgHistory',report:'pgReport',settings:'pgSettings'};document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});var el=document.getElementById(pages[pg]);if(el)el.classList.add('active');var tabs=['form','stats','defects','history','settings'];document.querySelectorAll('.nitem').forEach(function(n,i){n.classList.toggle('active',tabs[i]===pg)});if(pg==='stats')renderStats();if(pg==='defects')renderDef();if(pg==='history')renderHist()}catch(e){}}
 
 /* ============ FEEDBACK ============ */
-function submitFb(){
-  var t=document.getElementById('fbInp').value.trim(),c=document.getElementById('fbCtc').value.trim();
-  if(!t){toast('请填写反馈');return}
-  var fb=[],k='gas_fb';
-  try{fb=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}
-  fb.unshift({id:Date.now(),text:t,ctc:c||'(未留)',dt:new Date().toLocaleString('zh-CN'),ver:'v2.1'});
-  localStorage.setItem(k,JSON.stringify(fb));
-  document.getElementById('fbInp').value='';document.getElementById('fbCtc').value='';
-  toast('✅ 感谢反馈！');
-}
+function submitFb(){try{var t=document.getElementById('fbInp').value.trim(),c=document.getElementById('fbCtc').value.trim();if(!t){toast('请填写反馈');return}var fb=[],k='gas_fb';try{fb=JSON.parse(localStorage.getItem(k)||'[]')}catch(e){}fb.unshift({id:Date.now(),text:t,ctc:c||'(未留)',dt:new Date().toLocaleString('zh-CN'),ver:VER});localStorage.setItem(k,JSON.stringify(fb));document.getElementById('fbInp').value='';document.getElementById('fbCtc').value='';toast('✅ 感谢反馈！')}catch(e){toast('提交失败')}}
 
 /* ============ MODAL ============ */
-function showModal(t,b,onCb){
-  document.getElementById('modalTitle').textContent=t;
-  document.getElementById('modalBody').textContent=b;
-  document.getElementById('modal').classList.add('show');
-  document.getElementById('modalBtn').onclick=onCb;
-}
+function showModal(t,b,onCb){try{document.getElementById('modalTitle').textContent=t;document.getElementById('modalBody').textContent=b;document.getElementById('modal').classList.add('show');document.getElementById('modalBtn').onclick=onCb}catch(e){}}
 function closeModal(){document.getElementById('modal').classList.remove('show')}
-document.getElementById('modal').onclick=function(e){if(e.target===this)closeModal()};
 
 /* ============ TOAST ============ */
-function toast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}
+function toast(m){try{var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}catch(e){}}
 
 /* ============ UPDATE CHECK ============ */
-var VER='v2.1',UP_URL='https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html';
-function checkUpdate(){
-  toast('⏳ 检查中…');
-  fetch(UP_URL).then(function(r){return r.text()}).then(function(h){
-    var m=h.match(/VER='([^']+)'/);
-    if(m&&m[1]!==VER){showModal('发现新版本','当前：'+VER+'\n最新：'+m[1]+'\n\n是否去GitHub下载？',function(){window.open('https://github.com/hlbfox/gas-inspection-platform','_blank');closeModal()})}
-    else{toast('✅ 已是最新版')}
-  }).catch(function(){toast('❌ 检查失败')});
-}
+function checkUpdate(){toast('⏳ 检查中…');try{fetch(UP_URL).then(function(r){return r.text()}).then(function(h){var m=h.match(/VER='([^']+)'/);if(m&&m[1]!==VER){showModal('发现新版本','当前：'+VER+'\n最新：'+m[1]+'\n\n是否去下载？',function(){window.open('https://github.com/hlbfox/gas-inspection-platform','_blank');closeModal()})}else{toast('✅ 已是最新版')}}).catch(function(){toast('❌ 检查失败')})}catch(e){toast('检查失败')}}
 
 /* ============ INIT ============ */
-document.addEventListener('DOMContentLoaded',init);
+document.addEventListener('DOMContentLoaded',function(){try{init()}catch(e){}});
 </script>
 </body>
 </html>
