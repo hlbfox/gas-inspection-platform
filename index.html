@@ -10,8 +10,6 @@
 :root{--bg:#f7f8fa;--card:#fff;--text:#1a1a2e;--txt2:#6b7280;--blue:#2563eb;--blue-d:#1d4ed8;--blue-l:#eff6ff;--border:#e5e7eb;--shadow:0 4px 24px rgba(0,0,0,.06)}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",sans-serif;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.6}
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
-
-/* Nav */
 .nav{position:sticky;top:0;background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);z-index:100}
 .nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1200px;margin:0 auto;padding:0 24px}
 .logo{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700;color:var(--text);text-decoration:none}
@@ -21,29 +19,21 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC",s
 .nav-links a:hover{color:var(--text)}
 .nav-actions{display:flex;gap:10px;align-items:center}
 .btn{display:inline-flex;align-items:center;gap:4px;padding:8px 18px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:all .15s;cursor:pointer;border:none}
-.btn-p{background:var(--blue);color:#fff}
-.btn-p:hover{background:var(--blue-d)}
-.btn-g{color:var(--txt2);background:transparent}
-.btn-g:hover{background:#f3f4f6}
+.btn-p{background:var(--blue);color:#fff}.btn-p:hover{background:var(--blue-d)}
+.btn-g{color:var(--txt2);background:transparent}.btn-g:hover{background:#f3f4f6}
 @media(max-width:720px){.nav-links,.nav-actions .btn-g{display:none}}
-
-/* Hero */
 .hero{padding:100px 0 80px;text-align:center;background:linear-gradient(180deg,#f7f8fa 0%,#fff 100%)}
 .hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--blue-l);color:var(--blue);padding:4px 14px;border-radius:100px;font-size:13px;font-weight:500;margin-bottom:20px}
-.hero h1{font-size:48px;font-weight:800;line-height:1.15;letter-spacing:-1px;margin-bottom:16px;background:linear-gradient(135deg,#1a1a2e 30%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero h1{font-size:48px;font-weight:800;line-height:1.15;letter-spacing:-1px;margin-bottom:16px;background:linear-gradient(135deg,#1a1a2e 30%,var(--blue) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .hero .sub{font-size:18px;color:var(--txt2);max-width:600px;margin:0 auto 10px}
 .hero .tag{font-size:14px;color:#9ca3af;margin-bottom:28px}
 .hero-cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 .hero-cta .btn{padding:12px 28px;font-size:15px;font-weight:600;border-radius:10px}
 .hero-meta{font-size:13px;color:#9ca3af;margin-top:20px;display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
-
-/* Section */
 section{padding:80px 0}
 .sec-title{text-align:center;margin-bottom:52px}
 .sec-title h2{font-size:32px;font-weight:700;margin-bottom:10px}
 .sec-title p{color:var(--txt2);font-size:15px;max-width:560px;margin:0 auto}
-
-/* Products */
 .products{background:var(--card);border-top:1px solid var(--border)}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
 .pcard{background:var(--card);border-radius:16px;padding:32px;border:1px solid var(--border);transition:all .25s;position:relative;overflow:hidden;text-decoration:none;color:inherit;display:block}
@@ -54,42 +44,44 @@ section{padding:80px 0}
 .pcard p{font-size:14px;color:var(--txt2);line-height:1.7;margin-bottom:12px}
 .pcard .tags{display:flex;gap:6px;flex-wrap:wrap}
 .pcard .tag{font-size:12px;padding:2px 10px;border-radius:100px;font-weight:500}
-.tag-green{background:#ecfdf5;color:#059669}
-.tag-blue{background:var(--blue-l);color:var(--blue)}
-.tag-amber{background:#fffbeb;color:#d97706}
+.tag-green{background:#ecfdf5;color:#059669}.tag-blue{background:var(--blue-l);color:var(--blue)}.tag-amber{background:#fffbeb;color:#d97706}
 .pcard-coming{background:#f9fafb;border:1.5px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:200px;padding:40px}
-.pcard-coming .ci{font-size:32px;margin-bottom:10px;color:#d1d5db}
-.pcard-coming p{font-size:14px;color:#9ca3af;margin:0}
-
-/* About */
+.pcard-coming .ci{font-size:32px;margin-bottom:10px;color:#d1d5db}.pcard-coming p{font-size:14px;color:#9ca3af;margin:0}
 .about{background:var(--bg)}
 .about-inner{max-width:680px;margin:0 auto;text-align:center}
 .about-inner p{color:var(--txt2);font-size:15px;margin-bottom:12px}
 .about-quote{margin-top:28px;padding:20px 24px;background:#fff;border-radius:12px;border-left:3px solid var(--blue);font-size:14px;color:var(--txt2);text-align:left;font-style:italic}
-
-/* Support */
-.support{background:var(--card);border-top:1px solid var(--border);text-align:center}
-.support-card{background:var(--bg);border-radius:16px;padding:40px;max-width:560px;margin:0 auto}
-.support-card p{color:var(--txt2);margin-bottom:20px}
-.qr-flex{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
-.qr-box{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);text-align:center}
-.qr-box img{width:140px;height:140px;display:block;margin:0 auto 8px;border-radius:6px}
-.qr-box .ql{font-size:12px;color:#9ca3af}
-
-/* Footer */
+/* Pricing */
+.pricing{background:var(--card);border-top:1px solid var(--border)}
+.pgg{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:20px;max-width:960px;margin:0 auto}
+.pc{background:#fff;border-radius:16px;padding:32px 28px;border:1.5px solid var(--border);position:relative;transition:all .25s}
+.pc:hover{box-shadow:var(--shadow);transform:translateY(-4px)}
+.pc.feat{border-color:var(--blue);box-shadow:0 8px 32px rgba(37,99,235,.15);transform:scale(1.03)}
+.pc.feat::before{content:"推荐";position:absolute;top:-12px;right:20px;background:var(--blue);color:#fff;padding:3px 14px;border-radius:100px;font-size:12px;font-weight:600}
+.pc .pn{font-size:17px;font-weight:600;margin-bottom:4px}
+.pc .pd{font-size:13px;color:var(--txt2);margin-bottom:16px;min-height:36px}
+.pc .pp{font-size:36px;font-weight:800;color:var(--text);margin-bottom:2px}
+.pc .pp small{font-size:14px;color:var(--txt2);font-weight:400}
+.pc .pp2{font-size:13px;color:#9ca3af;margin-bottom:18px}
+.pc ul{list-style:none;border-top:1px solid var(--border);padding-top:16px;margin-bottom:16px}
+.pc ul li{padding:6px 0;font-size:14px;color:var(--txt2);display:flex;align-items:center;gap:8px}
+.pc ul li::before{content:"✓";color:var(--blue);font-weight:700}
+.pc .pq{margin-top:14px;padding-top:14px;border-top:1px dashed var(--border);text-align:center}
+.pc .pq img{width:120px;height:120px;display:block;margin:0 auto 8px;border-radius:8px}
+.pc .pq .pl{font-size:12px;color:var(--txt2)}
+.pc .btn{width:100%;justify-content:center}
 footer{border-top:1px solid var(--border);padding:32px 24px;text-align:center;font-size:13px;color:#9ca3af}
 footer strong{color:var(--text);display:block;margin-bottom:4px}
 </style>
 </head>
 <body>
-
 <nav class="nav">
   <div class="nav-inner">
     <a href="/" class="logo"><span>🔥</span>燃气安全数字化平台</a>
     <div class="nav-links">
       <a href="#products">产品</a>
+      <a href="#pricing">版本</a>
       <a href="#about">关于</a>
-      <a href="#support">支持</a>
     </div>
     <div class="nav-actions">
       <a href="#products" class="btn btn-p">查看产品</a>
@@ -121,7 +113,6 @@ footer strong{color:var(--text);display:block;margin-bottom:4px}
       <p>每一款工具都来自一线从业者的真实需求，持续迭代中</p>
     </div>
     <div class="pgrid">
-      
       <a href="products/gas-inspection/" class="pcard">
         <span class="pnew">NEW</span>
         <div class="picon">📋</div>
@@ -133,13 +124,76 @@ footer strong{color:var(--text);display:block;margin-bottom:4px}
           <span class="tag tag-amber">工具</span>
         </div>
       </a>
-      
       <div class="pcard-coming">
         <div class="ci">🔧</div>
         <p>更多产品开发中，敬请期待</p>
-        <p style="margin-top:6px;font-size:13px">如果你有行业需求，欢迎告诉我们</p>
       </div>
-      
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="wrap">
+    <div class="sec-title">
+      <h2>版本与支持</h2>
+      <p>基础功能完全免费，专业版提供更多能力</p>
+    </div>
+    <div class="pgg">
+
+      <div class="pc">
+        <div class="pn">基础版</div>
+        <div class="pd">个人使用，日常检查管理</div>
+        <div class="pp">¥0<small> / 永久</small></div>
+        <div class="pp2">不限时长，不限次数</div>
+        <ul>
+          <li>检查记录数字化录入</li>
+          <li>报告一键生成</li>
+          <li>历史记录管理</li>
+          <li>数据统计看板</li>
+          <li>隐患跟踪管理</li>
+          <li>CSV / 打印导出</li>
+        </ul>
+        <a href="products/gas-inspection/" class="btn btn-p">开始使用</a>
+      </div>
+
+      <div class="pc feat">
+        <div class="pn">专业版</div>
+        <div class="pd">适合需要更多功能的机构</div>
+        <div class="pp">¥68<small> / 年</small></div>
+        <div class="pp2">一杯咖啡的价格，支持持续更新</div>
+        <ul>
+          <li>包含基础版全部功能</li>
+          <li>多端数据同步</li>
+          <li>云端备份与恢复</li>
+          <li>定制检查模板</li>
+          <li>专属技术支持</li>
+          <li>优先功能请求</li>
+        </ul>
+        <div class="pq">
+          <div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap">
+            <div><img src="alipay-qr.jpg" alt="支付宝"><div class="pl">支付宝</div></div>
+            <div><img src="wechat-qr.jpg" alt="微信"><div class="pl">微信</div></div>
+          </div>
+          <div style="font-size:12px;color:#9ca3af;margin-top:6px">扫码支持 → 获取专业版</div>
+        </div>
+      </div>
+
+      <div class="pc">
+        <div class="pn">定制版</div>
+        <div class="pd">机构部署、私有化定制</div>
+        <div class="pp">¥面议</div>
+        <div class="pp2">按需定制，灵活满足</div>
+        <ul>
+          <li>包含专业版全部功能</li>
+          <li>私有化部署</li>
+          <li>定制功能开发</li>
+          <li>对接内部系统</li>
+          <li>多人权限管理</li>
+          <li>专属培训与支持</li>
+        </ul>
+        <a href="mailto:contact@gasms.cn" class="btn btn-g">联系咨询</a>
+      </div>
+
     </div>
   </div>
 </section>
@@ -153,30 +207,7 @@ footer strong{color:var(--text);display:block;margin-bottom:4px}
       <p>我们来自燃气监管一线。做了多年燃气安全管理工作，深知基层的痛点——纸质台账难管理、数据汇总费时费力、隐患跟踪靠脑子记。</p>
       <p>这些工具是我们用 AI 自己做的，用着顺手就分享给同行。<strong>不卖钱，不搞商业，纯粹是同行之间的经验交流。</strong></p>
       <p>如果你觉得有用，欢迎拿去用；如果有改进建议，也欢迎告诉我们。燃气安全是大家的事，能帮一个是一个。</p>
-      <div class="about-quote">
-        "以前一个月汇报至少要花 3 天整理数据，现在点几下就出来了，关键是格式比手工的还规范。"
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="support" id="support">
-  <div class="wrap">
-    <div class="sec-title">
-      <h2>赞赏支持</h2>
-      <p>工具完全免费。如果你觉得有用，可以请我们喝杯咖啡 ☕</p>
-    </div>
-    <div class="support-card">
-      <div class="qr-flex">
-        <div class="qr-box">
-          <img src="alipay-qr.jpg" alt="支付宝">
-          <div class="ql">支付宝赞赏</div>
-        </div>
-        <div class="qr-box">
-          <img src="wechat-qr.jpg" alt="微信">
-          <div class="ql">微信赞赏</div>
-        </div>
-      </div>
+      <div class="about-quote">"以前一个月汇报至少要花 3 天整理数据，现在点几下就出来了，关键是格式比手工的还规范。"</div>
     </div>
   </div>
 </section>
@@ -185,6 +216,5 @@ footer strong{color:var(--text);display:block;margin-bottom:4px}
   <strong>燃气安全数字化平台</strong>
   www.gasms.cn · 让燃气安全检查更简单 · 同行经验交流
 </footer>
-
 </body>
 </html>
