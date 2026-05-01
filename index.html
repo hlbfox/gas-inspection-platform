@@ -331,11 +331,26 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   </div>
 
   <div class="card">
+    <div class="card-title">💬 反馈建议</div>
+    <p style="font-size:13px;color:#666;margin:-6px 0 12px">你的每一条建议都会让这个工具变得更好</p>
+    <div class="form-group">
+      <textarea id="feedbackInput" placeholder="说说你的想法…\n- 想要什么新功能？\n- 哪里用着不顺手？\n- 发现了什么Bug？" rows="4" style="font-size:14px"></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label style="font-size:13px;color:#888">联系方式（选填，方便回复你）</label>
+      <input type="text" id="feedbackContact" placeholder="微信 / 电话 / 邮箱">
+    </div>
+    <button class="btn btn-primary" onclick="submitFeedback()" style="margin-top:12px">📨 提交反馈</button>
+    <p style="font-size:11px;color:#bbb;text-align:center;margin-top:6px">反馈会保存在本地，开发者会定期收集处理</p>
+  </div>
+
+  <div class="card">
     <div class="card-title">ℹ️ 关于</div>
     <div style="font-size:13px;color:#888;line-height:1.8;text-align:center;padding:8px 0">
-      燃气监管工作台 v2.0<br>
+      燃气监管工作台 <span id="aboutVersion">v2.0</span><br>
       由一线燃气监管从业者打造<br>
       数据仅保存在本地浏览器中<br>
+      完全免费 · 欢迎同行使用交流<br>
       <span style="font-size:12px;color:#bbb">Made with ♥ for 燃气安全</span>
     </div>
   </div>
@@ -483,6 +498,55 @@ function updateDefectStatus(defectId,newStatus,fixNote){
   if(d){d.status=newStatus;if(fixNote)d.fixNote=fixNote;d.updatedAt=new Date().toISOString()}
   saveDefects(defects);
   renderDefects();updateDefectBadge();
+}
+
+// ========== FEEDBACK ==========
+const FEEDBACK_STORAGE_KEY = 'gas_feedback_v1';
+
+function submitFeedback(){
+  const text = document.getElementById('feedbackInput').value.trim();
+  const contact = document.getElementById('feedbackContact').value.trim();
+  if(!text){showToast('请填写反馈内容');return}
+  
+  const feedback = {
+    id: Date.now(),
+    text: text,
+    contact: contact || '(未留联系方式)',
+    date: new Date().toLocaleString('zh-CN'),
+    version: 'v2.0'
+  };
+  
+  // Save to localStorage
+  let list = [];
+  try{list = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY)||'[]')}catch(e){}
+  list.unshift(feedback);
+  localStorage.setItem(FEEDBACK_STORAGE_KEY, JSON.stringify(list));
+  
+  // Clear form
+  document.getElementById('feedbackInput').value = '';
+  document.getElementById('feedbackContact').value = '';
+  
+  showToast('✅ 感谢你的反馈！');
+  
+  // Show summary
+  setTimeout(() => {
+    showModal('反馈已保存', 
+      '你的反馈已保存在本地浏览器中。\n\n我们定期收集所有用户的反馈，\n每一条都会认真看！\n\n如需直接联系开发者，\n请通过微信沟通。',
+      closeModal);
+  }, 500);
+}
+
+function exportFeedback(){
+  let list = [];
+  try{list = JSON.parse(localStorage.getItem(FEEDBACK_STORAGE_KEY)||'[]')}catch(e){}
+  if(list.length === 0){showToast('暂无反馈记录');return}
+  const blob = new Blob([JSON.stringify(list,null,2)], {type:'application/json'});
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `用户反馈_${new Date().toISOString().split('T')[0]}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast('✅ 反馈数据已导出');
 }
 
 // ========== INIT ==========
