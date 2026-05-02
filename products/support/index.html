@@ -193,7 +193,7 @@ a{text-decoration:none;color:inherit}
       <!-- QR Code -->
       <div class="qr-area">
         <div class="qr-box" id="qrBox">
-          <img id="qrImage" src="../wechat-qr.jpg" alt="收款码">
+          <img id="qrImage" src="../../wechat-qr.jpg" alt="收款码">
           <div class="qr-mask" id="qrMask">⟳</div>
         </div>
         <div class="qr-amount"><span class="symbol">¥</span><span id="qrAmount">50</span></div>
@@ -315,7 +315,7 @@ a{text-decoration:none;color:inherit}
   // Update QR
   function updateQR() {
     const isAli = selectedPay === 'alipay';
-    qrImage.src = isAli ? '../alipay-qr.jpg' : '../wechat-qr.jpg';
+    qrImage.src = isAli ? '../../alipay-qr.jpg' : '../../wechat-qr.jpg';
     qrImage.alt = isAli ? '支付宝收款码' : '微信收款码';
     qrImage.onload = () => qrBox.classList.remove('loading');
     qrBox.classList.add('loading');
