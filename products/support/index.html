@@ -3,87 +3,153 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>赞赏支持 - 燃气安全数字化平台</title>
-<meta name="description" content="赞赏支持燃气行业工具，让持续更新走得更远">
+<title>赞赏支持 · 燃气管家 — gasms.cn</title>
+<meta name="description" content="赞赏支持燃气行业工具，让持续更新走得更远。微信/支付宝，任意金额。">
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#f5f6f8;--card:#fff;--text:#1a1a2e;--txt2:#6b7280;--blue:#2563eb;--blue-d:#1d4ed8;--blue-l:#eef2ff;--green:#059669;--green-l:#ecfdf5;--orange:#d97706;--orange-l:#fffbeb;--border:#e5e7eb;--shadow:0 8px 32px rgba(0,0,0,.08);--radius:16px}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
-.wrap{max-width:480px;margin:0 auto;padding:40px 20px;width:100%;flex:1}
-/* Header */
-.header{text-align:center;margin-bottom:32px}
-.header .icon{font-size:48px;margin-bottom:12px}
-.header h1{font-size:24px;font-weight:700;margin-bottom:6px}
-.header p{font-size:14px;color:var(--txt2);line-height:1.6}
-.header .badge{display:inline-block;background:var(--blue-l);color:var(--blue);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:500;margin-bottom:16px}
-/* Card */
-.card{background:var(--card);border-radius:var(--radius);padding:32px 28px;box-shadow:var(--shadow);margin-bottom:16px}
-/* Amount */
-.section-title{font-size:14px;font-weight:600;color:var(--txt2);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+/* ===== Reset & Variables ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f172a;
+  --blue:#2563eb;
+  --blue-d:#1d4ed8;
+  --blue-l:#eef2ff;
+  --blue-v:#4f46e5;
+  --green:#059669;
+  --gray-50:#f8fafc;
+  --gray-100:#f1f5f9;
+  --gray-200:#e2e8f0;
+  --gray-400:#94a3b8;
+  --gray-500:#64748b;
+  --gray-600:#475569;
+  --gray-700:#334155;
+  --gray-900:#0f172a;
+  --card:#fff;
+  --bg:#f8fafc;
+  --radius:12px;
+  --radius-lg:20px;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+  --shadow-lg:0 12px 48px rgba(0,0,0,.10);
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+}
+body{font-family:var(--font);color:var(--gray-900);background:linear-gradient(160deg,#f8fafc 0%,#eef2ff 100%);-webkit-font-smoothing:antialiased;min-height:100vh;display:flex;flex-direction:column}
+.wrap{max-width:520px;margin:0 auto;padding:32px 20px 40px;width:100%;flex:1}
+a{text-decoration:none;color:inherit}
+
+/* ===== Back Link ===== */
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--gray-400);margin-bottom:24px;transition:color .2s}
+.back-link:hover{color:var(--blue)}
+
+/* ===== Header ===== */
+.header{text-align:center;margin-bottom:28px}
+.header .icon{width:56px;height:56px;background:linear-gradient(135deg,var(--blue),var(--blue-v));border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;box-shadow:0 4px 16px rgba(37,99,235,.25)}
+.header h1{font-size:22px;font-weight:800;color:var(--gray-900);margin-bottom:4px}
+.header p{font-size:13px;color:var(--gray-500);line-height:1.6}
+.header .badge{display:inline-block;background:var(--blue-l);color:var(--blue);padding:4px 12px;border-radius:100px;font-size:12px;font-weight:600;margin-bottom:12px;border:1px solid rgba(37,99,235,.12)}
+
+/* ===== Card ===== */
+.card{background:var(--card);border-radius:var(--radius-lg);padding:28px 24px;box-shadow:var(--shadow);border:1px solid var(--gray-200);margin-bottom:16px}
+
+/* ===== Tab Bar ===== */
+.tab-bar{display:flex;gap:4px;background:var(--gray-100);border-radius:10px;padding:4px;margin-bottom:24px}
+.tab-btn{flex:1;padding:10px;border:none;border-radius:8px;background:transparent;font-size:13px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .2s;font-family:inherit}
+.tab-btn.active{background:var(--card);color:var(--gray-900);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* ===== Section Title ===== */
+.sec-title{font-size:13px;font-weight:600;color:var(--gray-400);margin-bottom:12px;display:flex;align-items:center;gap:6px;text-transform:uppercase;letter-spacing:.4px}
+
+/* ===== Amount Grid ===== */
 .amount-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
-.amount-btn{height:48px;border:1.5px solid var(--border);border-radius:12px;background:var(--card);font-size:15px;font-weight:600;color:var(--text);cursor:pointer;transition:all .15s;font-family:inherit}
-.amount-btn:hover{border-color:var(--blue);background:var(--blue-l)}
-.amount-btn.active{border-color:var(--blue);background:var(--blue);color:#fff}
-.amount-btn.custom{grid-column:1/-1;background:var(--bg);font-weight:500;font-size:14px;color:var(--txt2);border-style:dashed}
-.amount-btn.custom:hover{border-color:var(--blue);color:var(--blue)}
-.amount-custom-input{display:none;margin-bottom:12px}
-.amount-custom-input.show{display:flex;gap:10px}
-.amount-custom-input input{flex:1;height:48px;border:1.5px solid var(--border);border-radius:12px;padding:0 16px;font-size:16px;font-weight:600;font-family:inherit;outline:none;transition:border-color .15s}
-.amount-custom-input input:focus{border-color:var(--blue)}
-.amount-custom-input input::-webkit-inner-spin-button{-webkit-appearance:none}
-.amount-custom-input .btn-confirm{height:48px;padding:0 20px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
-/* Payment methods */
-.pay-methods{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.pay-btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border:1.5px solid var(--border);border-radius:12px;background:var(--card);cursor:pointer;transition:all .15s;font-family:inherit;font-size:14px;font-weight:500}
-.pay-btn:hover{border-color:var(--blue)}
-.pay-btn.active{border-color:var(--blue);background:var(--blue-l)}
-.pay-btn .pay-icon{font-size:20px}
-.pay-btn .pay-name{color:var(--text)}
-.pay-btn .pay-check{display:none;width:18px;height:18px;border-radius:50%;background:var(--blue);color:#fff;font-size:11px;align-items:center;justify-content:center}
-.pay-btn.active .pay-check{display:inline-flex}
-/* QR Code */
-.qr-area{text-align:center;padding:24px 0 8px}
-.qr-area .qr-box{display:inline-block;background:#fff;border-radius:16px;padding:16px;box-shadow:0 4px 20px rgba(0,0,0,.06);border:1px solid var(--border)}
-.qr-area .qr-box img{width:200px;height:200px;display:block;border-radius:8px;object-fit:contain}
-.qr-area .qr-label{font-size:13px;color:var(--txt2);margin-top:10px}
-.qr-area .qr-amount{font-size:20px;font-weight:700;color:var(--text);margin-top:8px}
-.qr-area .qr-hint{font-size:12px;color:#9ca3af;margin-top:6px;line-height:1.5}
-/* Note */
-.note{background:#f9fafb;border-radius:12px;padding:14px 16px;margin-top:4px}
-.note p{font-size:13px;color:var(--txt2);line-height:1.6}
-.note p strong{color:var(--text)}
-/* Footer */
-.footer{text-align:center;padding:24px 0;font-size:12px;color:#9ca3af}
-.footer a{color:var(--txt2);text-decoration:none}
+.amount-btn{height:48px;border:1.5px solid var(--gray-200);border-radius:10px;background:var(--card);font-size:15px;font-weight:700;color:var(--gray-700);cursor:pointer;transition:all .2s;font-family:inherit}
+.amount-btn:hover{border-color:var(--blue);background:var(--blue-l);color:var(--blue)}
+.amount-btn.active{background:var(--gray-900);border-color:var(--gray-900);color:#fff;box-shadow:0 4px 12px rgba(15,23,42,.2)}
+.amount-btn.custom{grid-column:1/-1;background:var(--gray-50);border-style:dashed;font-weight:600;color:var(--gray-400);font-size:13px}
+.amount-btn.custom:hover{background:var(--blue-l);color:var(--blue);border-color:var(--blue)}
+.amount-btn.custom.active{background:var(--gray-900);color:#fff;border-style:solid}
+
+/* ===== Custom Input ===== */
+.custom-row{display:none;gap:10px;margin-bottom:16px}
+.custom-row.show{display:flex}
+.custom-row input{flex:1;height:48px;border:1.5px solid var(--gray-200);border-radius:10px;padding:0 16px;font-size:16px;font-weight:600;font-family:inherit;outline:none;transition:border-color .2s;background:var(--gray-50)}
+.custom-row input:focus{border-color:var(--blue)}
+.custom-row input:invalid{border-color:#ef4444}
+.custom-row .btn-cfm{height:48px;padding:0 24px;border:none;border-radius:10px;background:var(--gray-900);color:#fff;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .2s}
+.custom-row .btn-cfm:hover{background:var(--blue);box-shadow:0 4px 12px rgba(37,99,235,.3)}
+
+/* ===== Payment Methods ===== */
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.pay-btn{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--card);cursor:pointer;transition:all .2s;font-family:inherit;font-size:14px;font-weight:600;position:relative}
+.pay-btn:hover{border-color:var(--blue);background:var(--blue-l)}
+.pay-btn.active{border-color:var(--gray-900);background:var(--gray-50)}
+.pay-btn .pay-check{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--gray-900);color:#fff;font-size:10px;display:none;align-items:center;justify-content:center}
+.pay-btn.active .pay-check{display:flex}
+.pay-btn svg{width:22px;height:22px;flex-shrink:0}
+
+/* ===== QR Area ===== */
+.qr-area{text-align:center;padding:8px 0 0}
+.qr-box{display:inline-block;background:var(--gray-50);border-radius:var(--radius-lg);padding:20px;border:1px solid var(--gray-200);position:relative}
+.qr-box img{width:200px;height:200px;display:block;border-radius:10px;object-fit:contain}
+.qr-box .qr-mask{position:absolute;top:20px;left:20px;right:20px;bottom:20px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;color:rgba(255,255,255,.9);background:rgba(0,0,0,.5);opacity:0;transition:opacity .3s;pointer-events:none}
+.qr-box.loading .qr-mask{opacity:1}
+.qr-amount{font-size:28px;font-weight:800;color:var(--gray-900);margin-top:14px;letter-spacing:-.5px}
+.qr-amount .symbol{font-size:18px}
+.qr-label{font-size:13px;color:var(--gray-500);margin-top:6px}
+.qr-hint{font-size:12px;color:var(--gray-400);margin-top:4px}
+
+/* ===== Note ===== */
+.note{background:var(--gray-50);border-radius:var(--radius);padding:16px 18px;border:1px solid var(--gray-200)}
+.note p{font-size:12px;color:var(--gray-400);line-height:1.7}
+.note p strong{color:var(--gray-600)}
+
+/* ===== Corp Tab ===== */
+.corp-info{background:var(--gray-50);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.corp-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-200);font-size:14px}
+.corp-row:last-child{border-bottom:none}
+.corp-row .label{color:var(--gray-400);font-weight:500}
+.corp-row .value{color:var(--gray-700);font-weight:600}
+.corp-mail{display:block;text-align:center;padding:14px;background:var(--gray-50);border-radius:var(--radius);color:var(--blue);font-size:14px;font-weight:600;transition:all .2s;border:1px solid transparent}
+.corp-mail:hover{background:var(--blue-l);border-color:var(--blue)}
+
+/* ===== Footer ===== */
+.footer{text-align:center;padding:24px 0;font-size:12px;color:var(--gray-400)}
+.footer a{color:var(--gray-500);transition:color .2s}
 .footer a:hover{color:var(--blue)}
-/* Tab bar */
-.tab-bar{display:flex;gap:4px;background:#f3f4f6;border-radius:10px;padding:4px;margin-bottom:20px}
-.tab-btn{flex:1;padding:10px;border:none;border-radius:8px;background:transparent;font-size:13px;font-weight:500;color:var(--txt2);cursor:pointer;transition:all .15s;font-family:inherit}
-.tab-btn.active{background:#fff;color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.1)}
-/* Responsive */
-@media(max-width:480px){.wrap{padding:24px 16px}.card{padding:24px 20px}.amount-grid{grid-template-columns:repeat(4,1fr);gap:8px}.amount-btn{height:44px;font-size:14px}.qr-area .qr-box img{width:180px;height:180px}}
+
+/* ===== Responsive ===== */
+@media(max-width:480px){
+  .wrap{padding:20px 16px 32px}
+  .card{padding:24px 18px;border-radius:16px}
+  .amount-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+  .amount-btn{height:44px;font-size:14px}
+  .qr-box img{width:170px;height:170px}
+  .qr-amount{font-size:24px}
+}
 </style>
 </head>
 <body>
 
 <div class="wrap">
+  <!-- Back -->
+  <a href="../" class="back-link">← 返回首页</a>
+
+  <!-- Header -->
   <div class="header">
-    <div class="badge">💝 同行交流 · 赞赏支持</div>
-    <div class="icon">🔥</div>
+    <div class="icon">❤️</div>
+    <div class="badge">💝 同行交流 · 自愿赞赏</div>
     <h1>赞赏支持</h1>
-    <p>这些工具来自一线监管从业者，用 AI 自己做的<br>觉得好用，请杯咖啡就是最大的鼓励 ☕</p>
+    <p>觉得工具好用，请杯咖啡就是最大的鼓励 ☕<br>你的认可是我持续更新的动力</p>
   </div>
 
+  <!-- Main Card -->
   <div class="card">
-    <!-- Tab: 赞赏 / 对公 -->
+    <!-- Tab -->
     <div class="tab-bar" id="tabBar">
       <button class="tab-btn active" data-tab="personal">❤️ 个人赞赏</button>
       <button class="tab-btn" data-tab="corp">🏢 对公转账</button>
     </div>
 
-    <!-- Personal donation tab -->
-    <div id="tabPersonal" class="tab-content">
-      <div class="section-title">💰 选择金额</div>
+    <!-- Personal Tab -->
+    <div id="tabPersonal">
+      <div class="sec-title">💰 选择金额</div>
       <div class="amount-grid" id="amountGrid">
         <button class="amount-btn" data-amount="10">¥10</button>
         <button class="amount-btn" data-amount="20">¥20</button>
@@ -94,97 +160,103 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","
         <button class="amount-btn custom" data-amount="custom">✏️ 自定义金额</button>
       </div>
 
-      <div class="amount-custom-input" id="customInput">
-        <input type="number" id="customAmount" placeholder="输入金额（元）" min="1">
-        <button class="btn-confirm" id="customConfirm">确定</button>
+      <div class="custom-row" id="customRow">
+        <input type="number" id="customAmount" placeholder="输入金额" min="1">
+        <button class="btn-cfm" id="customConfirm">确定</button>
       </div>
 
-      <div class="section-title">📱 支付方式</div>
-      <div class="pay-methods" id="payMethods">
+      <div class="sec-title">📱 支付方式</div>
+      <div class="pay-grid" id="payGrid">
+        <!-- Alipay -->
         <button class="pay-btn" data-pay="alipay">
-          <span class="pay-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2z" fill="#1677FF"/><path d="M8.4 13.2c-.6-.3-1.2-.6-1.8-1.2-.6-.6-.9-1.3-.9-2 0-.7.3-1.4.9-2 .6-.6 1.3-.9 2-.9s1.4.3 2 .9c.6.6.9 1.3.9 2 0 .7-.3 1.4-.9 2-.6.6-1.3.9-2 .9v2.2c2 0 3.4-.8 4.3-2.2.9-1.4 1.3-3.2 1.3-5.4H7.5v-1.5h4V7.5H10V6h4v1.5h1.5v1.5H14v4.5c0 2.8-1.8 4.5-4.5 4.5v-2.2c.6-.1 1.2-.3 1.5-.5.3-.2.6-.4.8-.6l-.1.1c-.5.4-1.1.6-1.7.6-.5 0-1-.2-1.4-.5-.4-.3-.7-.8-.9-1.3l1.7-.6c.1.3.3.6.5.8.2.2.5.3.8.4" fill="#fff"/></svg></span>
-          <span class="pay-name">支付宝</span>
           <span class="pay-check">✓</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="2" y="4" width="20" height="16" rx="3" fill="#1677FF"/>
+            <path d="M7.5 11.5a3 3 0 116 0 3 3 0 01-6 0z" fill="#fff" opacity=".9"/>
+            <path d="M5 16l3-2M19 16l-3-2" stroke="#fff" stroke-width="1.2" opacity=".6"/>
+          </svg>
+          支付宝
         </button>
+        <!-- WeChat -->
         <button class="pay-btn active" data-pay="wechat">
-          <span class="pay-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M8.5 1C4.36 1 1 3.91 1 7.5c0 2.03 1.08 3.85 2.78 5.06L3.2 14.7l2.74-1.2c.82.22 1.68.34 2.56.34.36 0 .72-.02 1.08-.06-.17-.76-.26-1.56-.26-2.38 0-3.87 3.36-7 7.5-7l.51.03C16.14 2.38 12.91 1 8.5 1z" fill="#07C160"/><path d="M17.5 9C13.91 9 11 11.58 11 14.75S13.91 20.5 17.5 20.5c.48 0 .95-.05 1.39-.14l2.56 1.14-.68-2.01C21.43 18.64 22 17.59 22 16.38 22 14.36 20.24 12.83 18 12.24V12c0-1.66-1.12-3-2.5-3z" fill="#07C160"/><circle cx="14.5" cy="15.5" r=".8" fill="#fff"/><circle cx="18.5" cy="15.5" r=".8" fill="#fff"/></svg></span>
-          <span class="pay-name">微信支付</span>
           <span class="pay-check">✓</span>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M8.5 3C4.36 3 1 5.91 1 9.5c0 2.03 1.08 3.85 2.78 5.06L3.2 16.7l2.74-1.2c.82.22 1.68.34 2.56.34.36 0 .72-.02 1.08-.06-.17-.76-.26-1.56-.26-2.38 0-3.87 3.36-7 7.5-7l.51.03C16.14 4.38 12.91 3 8.5 3z" fill="#07C160"/>
+            <path d="M17.5 11C13.91 11 11 13.58 11 16.75S13.91 22.5 17.5 22.5c.48 0 .95-.05 1.39-.14l2.56 1.14-.68-2.01C21.43 20.64 22 19.59 22 18.38 22 16.36 20.24 14.83 18 14.24V14c0-1.66-1.12-3-2.5-3z" fill="#07C160"/>
+            <circle cx="14.5" cy="17.5" r=".8" fill="#fff"/>
+            <circle cx="18.5" cy="17.5" r=".8" fill="#fff"/>
+          </svg>
+          微信支付
         </button>
       </div>
 
-      <!-- QR Code display -->
-      <div class="qr-area" id="qrArea">
-        <div class="qr-box">
+      <!-- QR Code -->
+      <div class="qr-area">
+        <div class="qr-box" id="qrBox">
           <img id="qrImage" src="../wechat-qr.jpg" alt="收款码">
+          <div class="qr-mask" id="qrMask">⟳</div>
         </div>
-        <div class="qr-amount" id="qrAmount">¥50</div>
+        <div class="qr-amount"><span class="symbol">¥</span><span id="qrAmount">50</span></div>
         <div class="qr-label" id="qrLabel">打开微信扫一扫 · 输入金额完成赞赏</div>
-        <div class="qr-hint">赞赏是自愿的，金额可自由调整 🙏</div>
+        <div class="qr-hint">金额可自由调整 · 赞赏是自愿的 🙏</div>
       </div>
     </div>
 
-    <!-- Corporate tab -->
-    <div id="tabCorp" class="tab-content" style="display:none">
-      <div class="section-title">🏦 对公转账信息</div>
-      <div style="background:var(--bg);border-radius:12px;padding:20px 16px;margin-bottom:16px">
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">单位名称</div>
-          <div style="font-size:15px;font-weight:600">（如有需要请邮件联系）</div>
-        </div>
-        <div style="margin-bottom:12px">
-          <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">开户行</div>
-          <div style="font-size:15px;font-weight:600">—</div>
-        </div>
-        <div>
-          <div style="font-size:12px;color:var(--txt2);margin-bottom:2px">账号</div>
-          <div style="font-size:15px;font-weight:600">—</div>
-        </div>
+    <!-- Corp Tab -->
+    <div id="tabCorp" style="display:none">
+      <div class="sec-title">🏦 对公转账信息</div>
+      <div class="corp-info">
+        <div class="corp-row"><span class="label">单位名称</span><span class="value">（请联系获取）</span></div>
+        <div class="corp-row"><span class="label">开户行</span><span class="value">—</span></div>
+        <div class="corp-row"><span class="label">账号</span><span class="value">—</span></div>
       </div>
-      <a href="mailto:381068859@qq.com?subject=对公转账咨询" style="display:block;text-align:center;padding:12px;background:var(--bg);border-radius:12px;color:var(--blue);text-decoration:none;font-size:14px;font-weight:500">📧 邮件咨询对公事宜</a>
+      <a href="mailto:381068859@qq.com?subject=对公转账咨询" class="corp-mail">📧 邮件咨询对公事宜</a>
     </div>
   </div>
 
+  <!-- Note -->
   <div class="note">
     <p><strong>💡 说明</strong><br>
-    赞赏金额仅用于支持工具持续更新。<br>
-    所有工具功能完全免费，赞赏与否不影响使用。<br>
-    如有问题可到 <a href="../#feedback" style="color:var(--blue)">工具设置页</a> 反馈。</p>
+    赞赏金额仅用于支持工具持续更新。所有工具功能完全免费，赞赏与否不影响任何使用。<br>
+    如有问题可到工具设置页反馈，或邮件联系 <strong>381068859@qq.com</strong></p>
   </div>
 
   <div class="footer">
-    <a href="../">← 返回首页</a> · <strong>燃气安全数字化平台</strong> · www.gasms.cn
+    <a href="../">← 返回 燃气管家</a> · www.gasms.cn
   </div>
 </div>
 
+<!-- Script -->
 <script>
 (function() {
-  // State
   let selectedAmount = 50;
   let selectedPay = 'wechat';
   let isCustom = false;
 
-  // Elements
-  const amountBtns = document.querySelectorAll('.amount-btn:not(.custom)');
-  const customBtn = document.querySelector('.amount-btn.custom');
-  const customInput = document.getElementById('customInput');
-  const customAmount = document.getElementById('customAmount');
-  const customConfirm = document.getElementById('customConfirm');
-  const payBtns = document.querySelectorAll('.pay-btn');
-  const qrImage = document.getElementById('qrImage');
-  const qrAmount = document.getElementById('qrAmount');
-  const qrLabel = document.getElementById('qrLabel');
-  const tabBtns = document.querySelectorAll('.tab-btn');
-  const tabPersonal = document.getElementById('tabPersonal');
-  const tabCorp = document.getElementById('tabCorp');
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
 
-  // Amount selection
+  const amountBtns = $$('.amount-btn:not(.custom)');
+  const customBtn = $('.amount-btn.custom');
+  const customRow = $('#customRow');
+  const customInput = $('#customAmount');
+  const customConfirm = $('#customConfirm');
+  const payBtns = $$('.pay-btn');
+  const qrImage = $('#qrImage');
+  const qrAmount = $('#qrAmount');
+  const qrLabel = $('#qrLabel');
+  const qrBox = $('#qrBox');
+  const tabBtns = $$('.tab-btn');
+  const tabPersonal = $('#tabPersonal');
+  const tabCorp = $('#tabCorp');
+
+  // Amount
   amountBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       amountBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
       customBtn.classList.remove('active');
-      customInput.classList.remove('show');
+      customRow.classList.remove('show');
       isCustom = false;
       selectedAmount = parseInt(this.dataset.amount);
       updateQR();
@@ -194,30 +266,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","
   customBtn.addEventListener('click', function() {
     amountBtns.forEach(b => b.classList.remove('active'));
     this.classList.add('active');
-    customInput.classList.add('show');
+    customRow.classList.add('show');
     isCustom = true;
-    customAmount.focus();
+    customInput.focus();
   });
 
-  customAmount.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') confirmCustomAmount();
-  });
+  customInput.addEventListener('keydown', e => { if (e.key === 'Enter') confirmCustom(); });
+  customConfirm.addEventListener('click', confirmCustom);
 
-  customConfirm.addEventListener('click', confirmCustomAmount);
-
-  function confirmCustomAmount() {
-    const val = parseInt(customAmount.value);
+  function confirmCustom() {
+    const val = parseInt(customInput.value);
     if (!val || val < 1) {
-      customAmount.style.borderColor = '#ef4444';
-      customAmount.placeholder = '请输入有效的金额';
+      customInput.style.borderColor = '#ef4444';
+      customInput.placeholder = '请输入有效金额';
+      setTimeout(() => { customInput.style.borderColor = ''; }, 800);
       return;
     }
-    customAmount.style.borderColor = '';
+    customInput.style.borderColor = '';
     selectedAmount = val;
     updateQR();
   }
 
-  // Payment method selection
+  // Payment method
   payBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       payBtns.forEach(b => b.classList.remove('active'));
@@ -227,13 +297,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","
     });
   });
 
-  // Tab switching
+  // Tabs
   tabBtns.forEach(btn => {
     btn.addEventListener('click', function() {
       tabBtns.forEach(b => b.classList.remove('active'));
       this.classList.add('active');
-      const tab = this.dataset.tab;
-      if (tab === 'personal') {
+      if (this.dataset.tab === 'personal') {
         tabPersonal.style.display = '';
         tabCorp.style.display = 'none';
       } else {
@@ -243,19 +312,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","
     });
   });
 
-  // Update QR display
+  // Update QR
   function updateQR() {
-    const isAlipay = selectedPay === 'alipay';
-    qrImage.src = isAlipay ? '../alipay-qr.jpg' : '../wechat-qr.jpg';
-    qrImage.alt = isAlipay ? '支付宝收款码' : '微信收款码';
-
-    const amountText = isCustom ? customAmount.value || selectedAmount : selectedAmount;
-    qrAmount.textContent = '¥' + amountText;
-
-    qrLabel.textContent = isAlipay
+    const isAli = selectedPay === 'alipay';
+    qrImage.src = isAli ? '../alipay-qr.jpg' : '../wechat-qr.jpg';
+    qrImage.alt = isAli ? '支付宝收款码' : '微信收款码';
+    qrImage.onload = () => qrBox.classList.remove('loading');
+    qrBox.classList.add('loading');
+    const amt = isCustom ? (customInput.value || selectedAmount) : selectedAmount;
+    qrAmount.textContent = amt;
+    qrLabel.textContent = isAli
       ? '打开支付宝扫一扫 · 输入金额完成赞赏'
       : '打开微信扫一扫 · 输入金额完成赞赏';
   }
+
+  // Init
+  updateQR();
 })();
 </script>
 </body>
