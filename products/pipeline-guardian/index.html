@@ -11,6 +11,8 @@ s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
 s.onload=function(){CHART_OK=true};s.onerror=function(){};
 d.head.appendChild(s)})();
 </script>
+<script>window.GASMS_APP_NAME='pipeline';</script>
+<script src="../../shared/gasms-sdk.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1a73e8;--bd:#1557b0;--bl:#e8f0fe;--green:#34a853;--gb:#e6f4ea;--red:#e53935;--rb:#fce8e6;--gray:#9e9e9e;--bg:#f0f4f9;--card:#fff;--txt:#333;--r:12px}
@@ -172,6 +174,35 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
     <div class="sr"><div><div class="sl2">导入备份</div></div><button class="btn bs bsm" onclick="document.getElementById('impF').click()">导入</button><input type="file" id="impF" accept=".json" style="display:none" onchange="importBak(event)"></div>
     <div class="sr" style="border:none"><div><div class="sl2" style="color:var(--red)">⚠️ 清空数据</div></div><button class="btn br bsm" onclick="confirmClear()">清空</button></div>
   </div>
+  <!-- PRO SECTION -->
+  <div class="c" id="proSection">
+    <div class="ct">⭐ 专业版功能</div>
+    <div id="proArea" style="text-align:center;padding:8px 0">
+      <div style="font-size:13px;color:#666;margin-bottom:8px" id="proMsgPG">正在检查许可证…</div>
+      <div id="proActPG"></div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var el=document.getElementById('proMsgPG'),act=document.getElementById('proActPG');
+    var sdk=window.GasmsSDK;if(!sdk){el.textContent='SDK加载失败';return;}
+    function render(){
+      if(sdk.state.isPro){
+        var l=sdk.state.license;
+        el.innerHTML='✅ 已激活 <strong>'+(l.plan==='enterprise'?'企业版':'专业版')+'</strong><br><span style="font-size:11px;color:#999">有效期至 '+new Date(l.expires_at).toLocaleDateString('zh-CN')+'</span>';
+        act.innerHTML='<button class="btn bs bsm" onclick="GasmsSDK.deactivate();location.reload()" style="margin-top:6px;font-size:12px">解除绑定</button>';
+      }else{
+        var c=sdk.checkCachedLicense();
+        if(c){el.innerHTML='✅ 已激活 <strong>'+(c.plan==='enterprise'?'企业版':'专业版')+'</strong>';act.innerHTML='';return;}
+        el.innerHTML='🔓 免费版 · <a href="../../pricing/" style="color:var(--blue);font-weight:600">升级专业版</a>';
+        act.innerHTML='<div style="margin-top:6px;display:flex;gap:6px;justify-content:center;flex-wrap:wrap"><input id="licPG" placeholder="许可证Key" style="padding:7px 10px;border:1.5px solid #dde1e6;border-radius:6px;font-size:13px;width:160px"><button class="btn bs bsm" onclick="window.actPG()" style="padding:7px 12px">激活</button></div><div id="licErrPG" style="color:var(--red);font-size:11px;margin-top:4px"></div>';
+      }
+    }
+    render();
+    window.actPG=async function(){var k=document.getElementById('licPG').value.trim();if(!k)return;try{await GasmsSDK.activate(k);document.getElementById('licErrPG').textContent='';toast('✅ 已激活！');render()}catch(e){document.getElementById('licErrPG').textContent='❌ '+e.message}};
+  })();
+  </script>
+
   <div class="c">
     <div class="ct">ℹ️ 关于</div>
     <div style="font-size:12px;color:#888;text-align:center;padding:6px 0;line-height:1.8">燃气管线守护者 v1.0<br>第三方施工管线保护协同工具<br>由一线燃气监管从业者打造<br>数据仅保存在本地浏览器中</div>

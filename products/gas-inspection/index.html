@@ -12,6 +12,8 @@ s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
 s.onload=function(){window.CLAW_CHART_OK=true};s.onerror=function(){};
 d.head.appendChild(s)})();
 </script>
+<script>window.GASMS_APP_NAME='inspection';</script>
+<script src="../../shared/gasms-sdk.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 :root{--blue:#1a73e8;--blue-d:#1557b0;--blue-l:#e8f0fe;--green:#34a853;--green-b:#e6f4ea;--red:#e53935;--red-b:#fce8e6;--gray:#9e9e9e;--gray-b:#f5f5f5;--bg:#f0f4f9;--card:#fff;--txt:#333;--radius:12px}
@@ -222,6 +224,56 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="sr"><div><div class="sl2">导入备份</div></div><button class="btn btn-s bs" onclick="document.getElementById('impFile').click()">导入</button><input type="file" id="impFile" accept=".json" style="display:none" onchange="importBak(event)"></div>
     <div class="sr" style="border:none"><div><div class="sl2" style="color:var(--red)">⚠️ 清空所有数据</div></div><button class="btn btn-d bs" onclick="confirmClear()">清空</button></div>
   </div>
+  <!-- PRO SECTION -->
+  <div class="card" id="pro-section">
+    <div class="ctitle">⭐ 专业版功能</div>
+    <div id="proStatus">
+      <div style="text-align:center;padding:12px 0">
+        <div style="font-size:14px;color:#666;margin-bottom:10px" id="proMsg">正在检查许可证…</div>
+        <div id="proActions"></div>
+      </div>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var el = document.getElementById('proMsg');
+    var act = document.getElementById('proActions');
+    var sdk = window.GasmsSDK;
+    if (!sdk) { el.textContent = 'SDK加载失败'; return; }
+    function render() {
+      if (sdk.state.isPro) {
+        var l = sdk.state.license;
+        el.innerHTML = '✅ 已激活 <strong>' + (l.plan === 'enterprise' ? '企业版' : '专业版') + '</strong><br><span style="font-size:12px;color:#999">有效期至 ' + new Date(l.expires_at).toLocaleDateString('zh-CN') + '</span>';
+        act.innerHTML = '<button class="btn btn-s bs" onclick="GasmsSDK.deactivate();location.reload()" style="margin-top:8px;font-size:13px">解除绑定</button>';
+      } else {
+        var cached = sdk.checkCachedLicense();
+        if (cached) {
+          el.innerHTML = '✅ 已激活 <strong>' + (cached.plan === 'enterprise' ? '企业版' : '专业版') + '</strong>';
+          act.innerHTML = ''; return;
+        }
+        el.innerHTML = '🔓 免费版 · <a href="../../pricing/" style="color:var(--blue);font-weight:600">升级专业版</a> 解锁云同步';
+        act.innerHTML = '<div style="margin-top:8px;display:flex;gap:8px;justify-content:center">' +
+          '<input id="licKeyInp" placeholder="输入许可证Key" style="padding:8px 12px;border:1.5px solid #dde1e6;border-radius:8px;font-size:14px;width:180px">' +
+          '<button class="btn btn-s bs" onclick="window.activateLicence()" style="padding:8px 14px">激活</button></div>' +
+          '<div id="licErr" style="color:var(--red);font-size:12px;margin-top:6px"></div>';
+      }
+    }
+    render();
+    window.activateLicence = async function() {
+      var key = document.getElementById('licKeyInp').value.trim();
+      if (!key) return;
+      try {
+        await GasmsSDK.activate(key);
+        document.getElementById('licErr').textContent = '';
+        toast('✅ 专业版已激活！');
+        render();
+      } catch(e) {
+        document.getElementById('licErr').textContent = '❌ ' + e.message;
+      }
+    };
+  })();
+  </script>
+
   <div class="card">
     <div class="ctitle">💬 反馈建议</div>
     <p style="font-size:13px;color:#666;margin:-6px 0 12px">每一条建议都会让工具变得更好</p>

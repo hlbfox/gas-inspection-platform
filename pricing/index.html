@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>订阅方案 · 燃气管家 — gasms.cn</title>
+<meta name="description" content="燃气监管数字化工具订阅方案。免费版随便用，专业版 ¥99/年，企业版 ¥499/年。云同步、自定义品牌、多人协作。">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0f172a;--blue:#2563eb;--blue-d:#1d4ed8;--blue-l:#eef2ff;
+  --green:#059669;--green-l:#ecfdf5;--amber:#d97706;--amber-l:#fffbeb;
+  --red:#dc2626;--gray-50:#f8fafc;--gray-100:#f1f5f9;--gray-200:#e2e8f0;
+  --gray-400:#94a3b8;--gray-500:#64748b;--gray-600:#475569;--gray-700:#334155;
+  --gray-900:#0f172a;--card:#fff;--bg:#f8fafc;--radius:12px;--radius-lg:20px;
+  --shadow:0 4px 24px rgba(0,0,0,.08);--shadow-lg:0 12px 48px rgba(0,0,0,.10);
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Noto Sans SC","Microsoft YaHei",sans-serif;
+}
+body{font-family:var(--font);color:var(--gray-900);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.6;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+/* Nav */
+.nav{background:rgba(255,255,255,.8);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);position:sticky;top:0;z-index:100}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1120px;margin:0 auto;padding:0 24px}
+.logo{font-size:16px;font-weight:700;color:var(--gray-900);display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--blue),var(--blue-d));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;flex-shrink:0}
+.nav-links{display:flex;gap:24px;font-size:14px;color:var(--gray-500)}
+.nav-links a:hover{color:var(--gray-900)}
+
+/* Hero */
+.hero{text-align:center;padding:80px 0 40px}
+.hero h1{font-size:36px;font-weight:800;letter-spacing:-.5px;margin-bottom:12px}
+.hero p{color:var(--gray-500);font-size:16px;max-width:600px;margin:0 auto 8px}
+.hero .toggle{display:inline-flex;background:var(--gray-100);border-radius:100px;padding:4px;margin-top:20px;border:1px solid var(--gray-200)}
+.hero .toggle button{padding:8px 20px;border:none;border-radius:100px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;background:transparent;color:var(--gray-500);font-family:inherit}
+.hero .toggle button.active{background:#fff;color:var(--gray-900);box-shadow:0 1px 4px rgba(0,0,0,.08)}
+
+/* Pricing Grid */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:40px;max-width:960px;margin-left:auto;margin-right:auto}
+.card{background:#fff;border-radius:var(--radius-lg);padding:36px 28px;border:1.5px solid var(--gray-200);position:relative;transition:all .3s;display:flex;flex-direction:column}
+.card:hover{transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.card.featured{border-color:var(--blue);box-shadow:0 8px 32px rgba(37,99,235,.12);transform:scale(1.03)}
+.card.featured::before{content:'最受欢迎';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--blue),var(--blue-d));color:#fff;padding:3px 16px;border-radius:100px;font-size:12px;font-weight:600}
+.card .name{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:4px}
+.card .desc{font-size:13px;color:var(--gray-400);margin-bottom:20px;min-height:40px}
+.card .price{font-size:40px;font-weight:800;color:var(--gray-900);margin-bottom:2px}
+.card .price small{font-size:14px;color:var(--gray-400);font-weight:400}
+.card .price-note{font-size:12px;color:var(--gray-400);margin-bottom:20px}
+.card ul{list-style:none;flex:1}
+.card ul li{padding:6px 0;font-size:14px;color:var(--gray-600);display:flex;align-items:center;gap:8px}
+.card ul li::before{content:'✓';color:var(--blue);font-weight:700}
+.card ul li.na{color:var(--gray-300)}.card ul li.na::before{content:'—';color:var(--gray-300)}
+.card ul li.highlight{color:var(--blue);font-weight:500}
+.card .btn{display:block;width:100%;padding:12px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:inherit;text-align:center;margin-top:24px}
+.card .btn.primary{background:var(--blue);color:#fff}
+.card .btn.primary:hover{background:var(--blue-d);box-shadow:0 4px 16px rgba(37,99,235,.3)}
+.card .btn.ghost{background:var(--gray-100);color:var(--gray-600)}
+.card .btn.ghost:hover{background:var(--gray-200)}
+@media(max-width:800px){.pricing-grid{grid-template-columns:1fr;max-width:400px}.card.featured{transform:none}.hero h1{font-size:28px}}
+
+/* FAQ */
+.faq{max-width:720px;margin:60px auto;padding:0 24px}
+.faq h2{text-align:center;font-size:24px;font-weight:700;margin-bottom:28px}
+.faq-item{border-bottom:1px solid var(--gray-200);padding:16px 0}
+.faq-q{font-size:15px;font-weight:600;color:var(--gray-900);cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.faq-q::after{content:'+';font-size:18px;color:var(--gray-400)}
+.faq-q.open::after{content:'−'}
+.faq-a{font-size:14px;color:var(--gray-500);line-height:1.7;margin-top:10px;display:none}
+.faq-a.show{display:block}
+
+/* Features Compare */
+.compare{margin:40px auto;max-width:800px;padding:0 24px;overflow-x:auto}
+.compare h2{text-align:center;font-size:24px;font-weight:700;margin-bottom:28px}
+.compare table{width:100%;border-collapse:collapse;font-size:14px}
+.compare th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--gray-200)}
+.compare th{font-weight:600;color:var(--gray-900);background:var(--gray-50)}
+.compare td{color:var(--gray-600)}
+.compare td:first-child{font-weight:500;color:var(--gray-900)}
+.compare td.yes{color:var(--blue);text-align:center}
+.compare td.no{color:var(--gray-200);text-align:center}
+.compare tr:hover td{background:var(--gray-50)}
+
+/* Footer */
+.footer{background:var(--gray-900);color:rgba(255,255,255,.45);padding:32px 24px;text-align:center;font-size:13px;margin-top:60px}
+.footer strong{color:#fff;display:block;margin-bottom:4px}
+
+/* Auth Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;padding:32px;max-width:400px;width:100%;box-shadow:var(--shadow-lg);max-height:90vh;overflow-y:auto}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:4px;text-align:center}
+.modal p{font-size:13px;color:var(--gray-400);text-align:center;margin-bottom:20px}
+.modal .fg{margin-bottom:14px}
+.modal .fg label{display:block;font-size:13px;font-weight:500;color:var(--gray-600);margin-bottom:4px}
+.modal .fg input{width:100%;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:8px;font-size:15px;outline:none;font-family:inherit}
+.modal .fg input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.modal .mbtn{width:100%;padding:12px;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;transition:all .2s}
+.modal .mbtn.primary{background:var(--blue);color:#fff}
+.modal .mbtn.primary:hover{background:var(--blue-d)}
+.modal .mbtn.ghost{background:transparent;color:var(--gray-500);font-size:13px;margin-top:8px}
+.modal .mbtn.ghost:hover{color:var(--gray-900)}
+.modal .err{color:var(--red);font-size:13px;text-align:center;margin-top:8px;display:none}
+.modal .switch{text-align:center;margin-top:14px;font-size:13px;color:var(--gray-500)}
+.modal .switch a{color:var(--blue);cursor:pointer}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.9);background:rgba(0,0,0,.78);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;z-index:9999;opacity:0;pointer-events:none;text-align:center;max-width:260px;transition:all .2s}
+.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- Auth Modal -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <h2 id="authTitle">登录</h2>
+    <p id="authSub">登录后可管理订阅</p>
+    <div id="loginForm">
+      <div class="fg"><label>邮箱</label><input id="loginEmail" type="email" placeholder="your@email.com"></div>
+      <div class="fg"><label>密码</label><input id="loginPass" type="password" placeholder="至少6位密码"></div>
+      <div class="err" id="loginErr"></div>
+      <button class="mbtn primary" onclick="doLogin()">登录</button>
+      <div class="switch">还没有账号？<a onclick="showRegister()">注册</a></div>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="fg"><label>姓名</label><input id="regName" placeholder="您的姓名"></div>
+      <div class="fg"><label>邮箱</label><input id="regEmail" type="email" placeholder="your@email.com"></div>
+      <div class="fg"><label>密码</label><input id="regPass" type="password" placeholder="至少6位密码"></div>
+      <div class="fg"><label>单位（选填）</label><input id="regComp" placeholder="如：XX燃气公司"></div>
+      <div class="err" id="regErr"></div>
+      <button class="mbtn primary" onclick="doRegister()">注册</button>
+      <div class="switch">已有账号？<a onclick="showLogin()">登录</a></div>
+    </div>
+    <div id="profileArea" style="display:none">
+      <div style="text-align:center;margin-bottom:16px;padding:12px;background:var(--blue-l);border-radius:10px">
+        <div style="font-size:14px;font-weight:600;color:var(--blue)" id="profileName"></div>
+        <div style="font-size:12px;color:var(--gray-400)" id="profileEmail"></div>
+      </div>
+      <div style="text-align:center;margin-bottom:12px">
+        <div style="font-size:13px;color:var(--gray-500);margin-bottom:4px">当前订阅</div>
+        <div id="licenseInfo" style="font-size:15px;font-weight:600;color:var(--blue)">无活跃订阅</div>
+      </div>
+      <div id="licenseDeviceInfo" style="font-size:12px;color:var(--gray-400);text-align:center;margin-bottom:16px"></div>
+      <button class="mbtn ghost" onclick="doLogout()" style="margin-top:4px">退出登录</button>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="/" class="logo"><span class="logo-icon">🔥</span>燃气管家</a>
+    <div class="nav-links">
+      <a href="/#products">产品</a>
+      <a href="#pricing">订阅</a>
+      <a href="#faq">常见问题</a>
+      <a href="#" id="navAuth">登录</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <h1>简单透明的订阅方案</h1>
+    <p>免费版功能完整，可长期使用。升级专业版解锁云同步与高级功能。</p>
+    <div class="toggle" id="billingToggle">
+      <button class="active" onclick="setBilling('year')">按年付</button>
+      <button onclick="setBilling('month')">按月付</button>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing Cards -->
+<section id="pricing">
+  <div class="wrap pricing-grid">
+    <!-- Free -->
+    <div class="card">
+      <div class="name">🔓 免费版</div>
+      <div class="desc">个人使用，功能完整</div>
+      <div class="price">¥0</div>
+      <div class="price-note">永久免费</div>
+      <ul>
+        <li>检查记录录入与跟踪</li>
+        <li>一键生成报告（标准格式）</li>
+        <li>数据统计看板</li>
+        <li>隐患跟踪管理</li>
+        <li>CSV/打印导出</li>
+        <li>数据本地存储</li>
+        <li class="na">云数据同步备份</li>
+        <li class="na">自定义品牌 / 抬头</li>
+        <li class="na">历史报告云端存档</li>
+      </ul>
+      <a href="/products/gas-inspection/" class="btn primary">开始使用</a>
+    </div>
+
+    <!-- Pro -->
+    <div class="card featured" id="proCard">
+      <div class="name">🚀 专业版</div>
+      <div class="desc">监管所/科室，效率翻倍</div>
+      <div class="price" id="proPrice">¥99<small>/年</small></div>
+      <div class="price-note" id="proNote">约 ¥8.25/月</div>
+      <ul>
+        <li class="highlight">包含所有免费版功能</li>
+        <li class="highlight">☁️ 云数据同步（3台设备）</li>
+        <li>自定义报告 Logo / 机构抬头</li>
+        <li>全部历史数据统计</li>
+        <li>云端报告存档（1年）</li>
+        <li>自动数据备份（每周）</li>
+        <li>邮件技术支持</li>
+        <li class="na">多人协同编辑</li>
+      </ul>
+      <button class="btn primary" onclick="subscribe('pro')">立即订阅</button>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="card">
+      <div class="name">🏢 企业版</div>
+      <div class="desc">燃气公司/第三方机构</div>
+      <div class="price" id="entPrice">¥499<small>/年</small></div>
+      <div class="price-note" id="entNote">约 ¥41.58/月</div>
+      <ul>
+        <li class="highlight">包含所有专业版功能</li>
+        <li>👥 多人协同编辑（10人）</li>
+        <li>云端报告永久存档</li>
+        <li>自动数据备份（每日）</li>
+        <li>API 数据对接</li>
+        <li>自动备份（每日）</li>
+        <li>专属微信群+电话支持</li>
+        <li class="na">私有化部署</li>
+      </ul>
+      <button class="btn primary" onclick="subscribe('enterprise')">联系订阅</button>
+    </div>
+  </div>
+</section>
+
+<!-- Feature Comparison -->
+<section class="compare">
+  <h2>功能对比</h2>
+  <table>
+    <thead><tr><th>功能</th><th>免费版</th><th>专业版</th><th>企业版</th></tr></thead>
+    <tbody>
+      <tr><td>检查记录录入</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>隐患跟踪</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>一键生成报告</td><td class="yes">标准格式</td><td class="yes">自定义品牌</td><td class="yes">自定义品牌</td></tr>
+      <tr><td>数据统计</td><td class="yes">近30天</td><td class="yes">全部历史</td><td class="yes">全部历史</td></tr>
+      <tr><td>CSV/打印导出</td><td class="yes">✓</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>云数据同步</td><td class="no">—</td><td class="yes">3设备</td><td class="yes">不限</td></tr>
+      <tr><td>自定义抬头/Logo</td><td class="no">—</td><td class="yes">✓</td><td class="yes">✓</td></tr>
+      <tr><td>历史报告存档</td><td class="no">—</td><td class="yes">1年</td><td class="yes">永久</td></tr>
+      <tr><td>多人协同</td><td class="no">—</td><td class="no">—</td><td class="yes">10人</td></tr>
+      <tr><td>API数据对接</td><td class="no">—</td><td class="no">—</td><td class="yes">✓</td></tr>
+      <tr><td>自动备份</td><td class="no">—</td><td class="yes">每周</td><td class="yes">每日</td></tr>
+      <tr><td>技术支持</td><td class="no">—</td><td class="yes">邮件</td><td class="yes">微信群+电话</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <h2>常见问题</h2>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">免费版有什么限制？</div><div class="faq-a">免费版功能完整，日常使用不受限。数据存储在您的设备本地，不支持云端同步。建议日常办公使用免费版即可，需要用云同步时再升级。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">专业版和企业版的区别？</div><div class="faq-a">专业版适合个人或科室使用，支持3台设备云同步。企业版适合燃气公司、第三方机构，支持最多10人协同编辑、API数据对接，以及每日自动备份。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">数据安全怎么保证？</div><div class="faq-a">免费版数据仅保存在您设备本地，我们无法访问。付费版的云端数据采用加密传输和存储，不会泄露给第三方。您随时可以导出备份，换平台或取消订阅都无忧。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">可以开发票吗？</div><div class="faq-a">企业版可以开具正规发票。专业版如需发票请在下单后联系客服。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">可以按月订阅吗？</div><div class="faq-a">目前仅提供按年订阅。年付价格已优惠至每月不到一杯奶茶（专业版约¥8.25/月）。</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFAQ(this)">支持私有化部署吗？</div><div class="faq-a">企业版可协商私有化部署方案，需要单独报价。请联系客服沟通具体需求。</div></div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <strong>燃气管家 · Gasms.cn</strong>
+  燃气行业数字化工具平台 · 从一线监管从业者出发
+</footer>
+
+<script>
+const API_BASE = window.location.hostname === 'localhost' ? '' : 'https://api.gasms.cn';
+
+// ===== Auth =====
+let token = localStorage.getItem('gasms_token');
+let currentUser = null;
+
+function toast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}
+
+// Load token
+(async function(){
+  if (token) {
+    try {
+      const r = await fetch(API_BASE + '/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } });
+      if (r.ok) {
+        const d = await r.json();
+        currentUser = d.user;
+        updateNav();
+      } else {
+        localStorage.removeItem('gasms_token');
+        token = null;
+      }
+    } catch(e) {}
+  }
+})();
+
+function updateNav() {
+  const el = document.getElementById('navAuth');
+  if (currentUser) {
+    el.textContent = currentUser.name || currentUser.email;
+    el.onclick = function(){ openModal() };
+  } else {
+    el.textContent = '登录';
+    el.onclick = function(){ openModal() };
+  }
+}
+
+// ===== Modal =====
+function openModal() {
+  document.getElementById('authModal').classList.add('show');
+  if (currentUser) {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('profileArea').style.display = 'block';
+    document.getElementById('authTitle').textContent = '我的账号';
+    document.getElementById('authSub').textContent = '';
+    document.getElementById('profileName').textContent = currentUser.name;
+    document.getElementById('profileEmail').textContent = currentUser.email;
+    loadLicenseInfo();
+  } else {
+    showLogin();
+  }
+}
+
+function closeModal() { document.getElementById('authModal').classList.remove('show') }
+document.getElementById('authModal').onclick = function(e) { if (e.target === this) closeModal() };
+
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+  document.getElementById('profileArea').style.display = 'none';
+  document.getElementById('authTitle').textContent = '登录';
+  document.getElementById('authSub').textContent = '登录后可管理订阅';
+}
+
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+  document.getElementById('profileArea').style.display = 'none';
+  document.getElementById('authTitle').textContent = '注册';
+  document.getElementById('authSub').textContent = '注册即开通免费版';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPass').value;
+  try {
+    const r = await fetch(API_BASE + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('loginErr').textContent = d.error; document.getElementById('loginErr').style.display = 'block'; return; }
+    localStorage.setItem('gasms_token', d.token);
+    token = d.token;
+    currentUser = d.user;
+    updateNav();
+    closeModal();
+    toast('✅ 登录成功');
+  } catch(e) {
+    document.getElementById('loginErr').textContent = '网络错误，请稍后重试';
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+
+async function doRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPass').value;
+  const company = document.getElementById('regComp').value.trim();
+  if (!name || !email || !password) {
+    document.getElementById('regErr').textContent = '请填写必填项'; document.getElementById('regErr').style.display = 'block'; return;
+  }
+  try {
+    const r = await fetch(API_BASE + '/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, company })
+    });
+    const d = await r.json();
+    if (!r.ok) { document.getElementById('regErr').textContent = d.error; document.getElementById('regErr').style.display = 'block'; return; }
+    localStorage.setItem('gasms_token', d.token);
+    token = d.token;
+    currentUser = d.user;
+    updateNav();
+    closeModal();
+    toast('✅ 注册成功，欢迎！');
+  } catch(e) {
+    document.getElementById('regErr').textContent = '网络错误，请稍后重试';
+    document.getElementById('regErr').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('gasms_token');
+  token = null;
+  currentUser = null;
+  updateNav();
+  closeModal();
+  toast('已退出');
+}
+
+async function loadLicenseInfo() {
+  try {
+    const r = await fetch(API_BASE + '/api/licenses', { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!r.ok) return;
+    const d = await r.json();
+    const el = document.getElementById('licenseInfo');
+    const deviceEl = document.getElementById('licenseDeviceInfo');
+    if (d.licenses && d.licenses.length > 0) {
+      const l = d.licenses[0];
+      const planNames = { pro: '🚀 专业版', enterprise: '🏢 企业版' };
+      const expires = new Date(l.expires_at).toLocaleDateString('zh-CN');
+      el.textContent = planNames[l.plan] + ' · 有效期至 ' + expires;
+      el.style.color = '#059669';
+      deviceEl.textContent = '已绑定 ' + l.device_count + '/' + l.device_limit + ' 台设备';
+    } else {
+      el.textContent = '🔓 免费版';
+      el.style.color = 'var(--gray-500)';
+      deviceEl.textContent = '当前无活跃订阅';
+    }
+  } catch(e) {}
+}
+
+// ===== Billing Toggle =====
+function setBilling(type) {
+  document.querySelectorAll('.toggle button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.toggle button')[type === 'year' ? 0 : 1].classList.add('active');
+  if (type === 'year') {
+    document.getElementById('proPrice').innerHTML = '¥99<small>/年</small>';
+    document.getElementById('proNote').textContent = '约 ¥8.25/月';
+    document.getElementById('entPrice').innerHTML = '¥499<small>/年</small>';
+    document.getElementById('entNote').textContent = '约 ¥41.58/月';
+  } else {
+    document.getElementById('proPrice').innerHTML = '¥15<small>/月</small>';
+    document.getElementById('proNote').textContent = '按年付更划算，省40%';
+    document.getElementById('entPrice').innerHTML = '¥69<small>/月</small>';
+    document.getElementById('entNote').textContent = '按年付更划算，省40%';
+  }
+}
+
+// ===== Subscribe =====
+async function subscribe(plan) {
+  if (!currentUser) {
+    document.getElementById('authTitle').textContent = '请先登录';
+    document.getElementById('authSub').textContent = '登录后即可订阅' + (plan === 'pro' ? '专业版' : '企业版');
+    openModal();
+    return;
+  }
+  toast('⏳ 正在创建订单...');
+  try {
+    const r = await fetch(API_BASE + '/api/orders/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ plan })
+    });
+    const d = await r.json();
+    if (!r.ok) { toast('❌ ' + (d.error || '创建订单失败')); return; }
+
+    // 显示支付信息
+    const planName = plan === 'pro' ? '专业版' : '企业版';
+    toast('📋 订单已创建：' + planName + ' ¥' + d.amount_yuan);
+    
+    // 这里跳转到 LemonSqueezy 支付页面或显示二维码
+    // 暂用简易方式：弹出支付引导
+    alert('📋 订单已创建\n\n' +
+      '套餐：' + planName + '\n' +
+      '金额：¥' + d.amount_yuan + '\n' +
+      '订单号：' + d.order_id + '\n\n' +
+      '💳 请转账至以下账号完成付款：\n' +
+      '支付宝：381068859@qq.com（*鸿）\n\n' +
+      '付款后请截图发送至邮箱 381068859@qq.com\n' +
+      '我们将在24小时内为您激活许可证。\n\n' +
+      '（正式版将集成自动支付，敬请期待）');
+  } catch(e) {
+    toast('❌ 网络错误');
+  }
+}
+
+// ===== FAQ =====
+function toggleFAQ(el) {
+  el.classList.toggle('open');
+  el.nextElementSibling.classList.toggle('show');
+}
+</script>
+</body>
+</html>
