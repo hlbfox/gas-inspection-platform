@@ -598,14 +598,9 @@ document.getElementById('modal').onclick=function(e){if(e.target===this)closeMod
 function toast(m){var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}
 
 /* ============ UPDATE CHECK ============ */
-var VER='v2.2',UP_URL='https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html';
+var VER='v2.2';
 function checkUpdate(){
-  toast('⏳ 检查中…');
-  fetch(UP_URL).then(function(r){return r.text()}).then(function(h){
-    var m=h.match(/VER='([^']+)'/);
-    if(m&&m[1]!==VER){showModal('发现新版本','当前：'+VER+'\n最新：'+m[1]+'\n\n是否去GitHub下载？',function(){window.open('https://github.com/hlbfox/gas-inspection-platform','_blank');closeModal()})}
-    else{toast('✅ 已是最新版')}
-  }).catch(function(){toast('❌ 检查失败')});
+  toast('当前版本：'+VER);
 }
 
 /* ============ PRO FUNCTIONS ============ */

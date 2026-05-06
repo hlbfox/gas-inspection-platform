@@ -262,7 +262,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 <script>
 /* ============ CONFIG ============ */
-var VER='v2.2',UP_URL='https://cdn.jsdelivr.net/gh/hlbfox/gas-inspection-platform@main/index.html';
+var VER='v2.2';
 var SK={r:'gas_r',d:'gas_d',c:'gas_c'};
 var DI=['燃气管线是否完好','燃气表是否正常','灶具点火是否正常','热水器排烟是否通畅','报警器是否正常工作','阀门启闭是否灵活','管道有无锈蚀泄漏','通风条件是否达标'];
 var SUBMITTING=false;
@@ -412,7 +412,7 @@ function closeModal(){document.getElementById('modal').classList.remove('show')}
 function toast(m){try{var el=document.getElementById('toast');el.textContent=m;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show')},1800)}catch(e){}}
 
 /* ============ UPDATE CHECK ============ */
-function checkUpdate(){toast('⏳ 检查中…');try{fetch(UP_URL).then(function(r){return r.text()}).then(function(h){var m=h.match(/VER='([^']+)'/);if(m&&m[1]!==VER){showModal('发现新版本','当前：'+VER+'\n最新：'+m[1]+'\n\n是否去下载？',function(){window.open('https://github.com/hlbfox/gas-inspection-platform','_blank');closeModal()})}else{toast('✅ 已是最新版')}}).catch(function(){toast('❌ 检查失败')})}catch(e){toast('检查失败')}}
+function checkUpdate(){toast('当前版本：'+VER)}
 
 /* ============ INIT ============ */
 document.addEventListener('DOMContentLoaded',function(){try{init()}catch(e){}});
