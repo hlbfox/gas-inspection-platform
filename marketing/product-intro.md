@@ -82,7 +82,7 @@
 ## 联系
 
 - 网站：https://www.gasms.cn
-- 邮箱：381068859@qq.com
+- 邮箱：warm_sun@live.cn
 
 ---
 
