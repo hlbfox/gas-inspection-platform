@@ -12,6 +12,7 @@ import cors from 'cors';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
+import fs from 'fs';
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -418,6 +419,16 @@ app.get('/api/admin/orders', auth, (req, res) => {
     ORDER BY o.created_at DESC LIMIT 100
   `).all();
   res.json({ orders });
+});
+
+// ===== 隧道URL（供SDK自动发现） =====
+app.get('/api/base-url', (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(join(__dirname, 'tunnel-url.json'), 'utf8'));
+    res.json(data);
+  } catch(e) {
+    res.json({ url: `http://localhost:${PORT}`, local: true });
+  }
 });
 
 // ===== 健康检查 =====

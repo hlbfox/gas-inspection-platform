@@ -5,7 +5,7 @@
 (function(global) {
   'use strict';
 
-  const API = (global.GASMS_API_URL) || 'https://sphere-pioneer-nursery-serial.trycloudflare.com';
+  const API = (global.GASMS_API_URL) || 'https://ccd5f9349ed02656-45-135-228-212.serveousercontent.com';
   const APP = global.GASMS_APP_NAME || 'unknown';
 
   /**
